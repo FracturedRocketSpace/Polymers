@@ -16,5 +16,5 @@ kB              = 1;    # Boltzmann constant
 mass            = 1;    # Particle mass
 
 # Lennard Jones parameters
-epsilon =   1;          # Depth of energy potential well
-sigma   =   1;          # Distance for which potential is zero
+epsilon =   0.25;         # Value proposed in the book. Depth of energy potential well
+sigma   =   0.8;          # Value proposed in the book. Distance for which potential is zero
