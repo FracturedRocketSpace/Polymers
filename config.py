@@ -4,12 +4,12 @@
 
 linkDistance    = 1;    # Distance between two successive particles in the polymer chain
 nBeads          = 100;  # Length of the polymer in beads
-T               = 1;    # Temperature
+T               = 300;    # Temperature
 nAngles         = 6;    # Number of possible angles
 nPolymers       = 10;   # Number of polymers
 
 # PERN
-pruning         = True; #
+pruning         = False; #
 
 # Constants
 kB              = 1;    # Boltzmann constant
