@@ -1,0 +1,8 @@
+# Spyder & Python
+.spyderworkspace
+.spyderproject
+__pycache__
+
+# Images
+*.png
+*.eps
