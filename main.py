@@ -5,6 +5,7 @@
 import config as c
 import numpy as np
 from addPolymer import addPolymer
+from plotPolymers import plotPolymers
 
 # Initiate list
 polymers = [];
@@ -20,4 +21,6 @@ for k in range(c.nPolymers):
     
 # Add end-to-end calculation/gyradius/other things
     
+    
 # Add plot of some/all polymers
+plotPolymers(polymers)

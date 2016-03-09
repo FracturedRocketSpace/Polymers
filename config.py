@@ -4,7 +4,7 @@
 
 linkDistance    = 1;    # Distance between two successive particles in the polymer chain
 nBeads          = 100;  # Length of the polymer in beads
-T               = 300;    # Temperature
+T               = 10;    # Temperature
 nAngles         = 6;    # Number of possible angles
 nPolymers       = 10;   # Number of polymers
 
