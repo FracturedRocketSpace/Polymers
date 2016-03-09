@@ -6,6 +6,7 @@ import config as c
 import numpy as np
 from addPolymer import addPolymer
 from plotPolymers import plotPolymers
+from minimizeEp import minimizeEp
 
 # Initiate lists
 polymers = [];
@@ -20,15 +21,16 @@ endtoendDistance=np.zeros(c.nBeads)
 endtoendDistance[1]=c.linkDistance
 
 # Generate the polymers
-for k in range(c.nPolymers):    
+for k in range(c.nPolymers):
     addPolymer(np.copy(r), 2, 0, polymers, np.copy(endtoendDistance), endtoendDistances)
-    
+    print("Polymer", k+1, "has been constructed")
+
 # Calculate average end-to-end distance as a function of the number of beads
 totalEndtoend=np.zeros(c.nBeads)
 
 for z in range(c.nPolymers):
     totalEndtoend+=endtoendDistances[z]
-    
+
 averageEndtoend=totalEndtoend/c.nPolymers #Errors not calculated yet
 
 # Calculate gyradius
@@ -44,6 +46,11 @@ for w in range(c.nPolymers):
         totaldeviationSquared+=deviationSquared
     gyradius[w]=totaldeviationSquared/c.nBeads
 
+# Ep minimalisation
+minEp=0;
+if(c.minEp):
+    minEp = minimizeEp(polymers);
+
 # Add plot of some/all polymers
-plotPolymers(polymers, endtoendDistances, averageEndtoend)
+plotPolymers(polymers, endtoendDistances, averageEndtoend, minEp)
 print ("Gyradius of each polymer:", gyradius)
