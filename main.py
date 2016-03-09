@@ -29,10 +29,20 @@ totalEndtoend=np.zeros(c.nBeads)
 for z in range(c.nPolymers):
     totalEndtoend+=endtoendDistances[z]
     
-averageEndtoend=totalEndtoend/c.nPolymers
-    
-# Add end-to-end calculation/gyradius/other things
-    # end-to-end distance done (except for errors)  
-    
+averageEndtoend=totalEndtoend/c.nPolymers #Errors not calculated yet
+
+# Calculate gyradius
+gyradius=np.zeros(c.nPolymers)
+
+for w in range(c.nPolymers):
+    meanX=np.mean(polymers[w][:,0])
+    meanY=np.mean(polymers[w][:,1])
+    for v in range(c.nBeads):
+        totaldeviationSquared=0
+        deviation=np.array([polymers[w][v,0]-meanX, polymers[w][v,1]-meanY])
+        deviationSquared=np.inner(deviation,deviation)
+        totaldeviationSquared+=deviationSquared
+    gyradius[w]=totaldeviationSquared/c.nBeads
+
 # Add plot of some/all polymers
 plotPolymers(polymers, endtoendDistances, averageEndtoend)
