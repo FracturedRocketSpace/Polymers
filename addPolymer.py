@@ -39,7 +39,7 @@ def chooseAngle(w, W, angles):
     return 0;
 
 
-def addBead(r, L, polWeight):
+def addBead(r, L, polWeight, endtoendDistance):
     # Calculate angles and weights
     angles, w, W = calculateAngles(r, L);
 
@@ -49,7 +49,9 @@ def addBead(r, L, polWeight):
     # Add new bead!
     r[L,0] = r[L-1,0] + c.linkDistance*m.cos(angle)     # Position of the new bead for angle
     r[L,1] = r[L-1,1] + c.linkDistance*m.sin(angle)
-
+    
+    endtoendDistance[L]=m.sqrt(r[L,0]**2+r[L,1]**2)
+    
     # Pruning
     if(c.pruning):
         print('Not implemented yet')
@@ -57,11 +59,13 @@ def addBead(r, L, polWeight):
     # Do next recursive step
     if(L+1 < c.nBeads):
         polWeight *= W;
-        addBead(r, L+1, polWeight)
+        addBead(r, L+1, polWeight, endtoendDistance)
 
 
-def addPolymer(r, L, polWeight, polymers):
+def addPolymer(r, L, polWeight, polymers, endtoendDistance, endtoendDistances):
     # Build up new polymer using recursive addBead
-    addBead(r, L, polWeight);
+    addBead(r, L, polWeight, endtoendDistance);
     # Save polymer
     polymers.append(r);
+    endtoendDistances.append(endtoendDistance)
+    
