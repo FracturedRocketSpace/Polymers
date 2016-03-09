@@ -23,9 +23,16 @@ endtoendDistance[1]=c.linkDistance
 for k in range(c.nPolymers):    
     addPolymer(np.copy(r), 2, 0, polymers, np.copy(endtoendDistance), endtoendDistances)
     
+# Calculate average end-to-end distance as a function of the number of beads
+totalEndtoend=np.zeros(c.nBeads)
+
+for z in range(c.nPolymers):
+    totalEndtoend+=endtoendDistances[z]
+    
+averageEndtoend=totalEndtoend/c.nPolymers
     
 # Add end-to-end calculation/gyradius/other things
-    
+    # end-to-end distance done (except for errors)  
     
 # Add plot of some/all polymers
-plotPolymers(polymers, endtoendDistances)
+plotPolymers(polymers, endtoendDistances, averageEndtoend)

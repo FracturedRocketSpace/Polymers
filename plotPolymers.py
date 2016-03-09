@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import config as c
 
-def plotPolymers(polymers, endtoendDistances):
+def plotPolymers(polymers, endtoendDistances, averageEndtoend):
     plt.figure(1)
     plt.hold(True)
     plt.title('Polymer position')
@@ -26,6 +26,11 @@ def plotPolymers(polymers, endtoendDistances):
     for i in range(len(endtoendDistances)):
         y=endtoendDistances[i]
         plt.plot ( x, y)
-        
+    
+    plt.figure(3)
+    plt.title('Average end-to-end distance as a function of the number of beads')
+    plt.xlabel('Number of beads')
+    plt.ylabel('End-to-end distance')
+    plt.plot(x,averageEndtoend)
 
 
