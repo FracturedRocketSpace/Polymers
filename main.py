@@ -46,3 +46,4 @@ for w in range(c.nPolymers):
 
 # Add plot of some/all polymers
 plotPolymers(polymers, endtoendDistances, averageEndtoend)
+print ("Gyradius of each polymer:", gyradius)
