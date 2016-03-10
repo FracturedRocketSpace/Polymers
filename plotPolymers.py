@@ -9,7 +9,8 @@ import config as c
 
 def plotPolymers(polymers, endtoendDistances, averageEndtoend, averageEndtoendSq, minEp):
     plt.figure(1)
-    plt.hold(True)
+
+    plt.subplot(231)
     plt.title('Polymer positions')
     plt.xlabel('x')
     plt.ylabel('y')
@@ -17,8 +18,7 @@ def plotPolymers(polymers, endtoendDistances, averageEndtoend, averageEndtoendSq
         r = polymers[i]
         plt.plot( r[:,0], r[:,1] )
 
-    plt.figure(2)
-    plt.hold(True)
+    plt.subplot(232)
     plt.title('End-to-end distance as a function of the number of beads')
     plt.xlabel('Number of beads')
     plt.ylabel('End-to-end distance')
@@ -27,13 +27,13 @@ def plotPolymers(polymers, endtoendDistances, averageEndtoend, averageEndtoendSq
         y=endtoendDistances[i][:,0]
         plt.plot ( x, y)
 
-    plt.figure(3)
+    plt.subplot(233)
     plt.title('Average end-to-end distance as a function of the number of beads')
     plt.xlabel('Number of beads')
     plt.ylabel('End-to-end distance')
     plt.plot(x,averageEndtoend)
-    
-    plt.figure(4)
+
+    plt.subplot(234)
     plt.title('Average squared end-to-end distance vs number of beads')
     plt.xlabel('Number of beads')
     plt.ylabel('End-to-end distance squared')
@@ -42,7 +42,7 @@ def plotPolymers(polymers, endtoendDistances, averageEndtoend, averageEndtoendSq
     plt.yscale('log')
     plt.xlim([3,1000])
 
-    plt.figure(5)
+    plt.subplot(235)
     plt.title('Minimal potential energy at each genetetic iteration')
     plt.xlabel('Iteration')
     plt.ylabel('Potential')
