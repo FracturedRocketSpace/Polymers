@@ -76,6 +76,9 @@ def minimizeEp(polymers):
 
         # Set minimum EP at start of this Iter
         minEp[i]=min(Ep)
+        # Save best polymer
+        if( min(minEp[0:i+1])==minEp[i] ):
+            rBest=polymers[ Ep.index(min(Ep)) ];
 
         # Prune and enrich
         polymers = pePolymers(polymers,Ep)
@@ -87,5 +90,8 @@ def minimizeEp(polymers):
         # Mutate
         for j in range(c.numMutations):
             mutatePolymer(polymers);
+
+        # Reinsert best polymer
+        polymers.append(rBest);
 
     return minEp
