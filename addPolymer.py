@@ -50,7 +50,8 @@ def addBead(r, L, polWeight, endtoendDistance):
     r[L,0] = r[L-1,0] + c.linkDistance*m.cos(angle)     # Position of the new bead for angle
     r[L,1] = r[L-1,1] + c.linkDistance*m.sin(angle)
 
-    endtoendDistance[L]=m.sqrt(r[L,0]**2+r[L,1]**2)
+    endtoendDistance[L,0]=m.sqrt(r[L,0]**2+r[L,1]**2)
+    endtoendDistance[L,1]=r[L,0]**2+r[L,1]**2
 
     # Pruning
     if(c.PERM):

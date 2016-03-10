@@ -16,9 +16,9 @@ endtoendDistances = [];
 r = np.zeros((c.nBeads, 2));
 r[1,1] = c.linkDistance;
 
-# Initialize end to end distance vectors
-endtoendDistance=np.zeros(c.nBeads)
-endtoendDistance[1]=c.linkDistance
+# Initialize end to end distance (and squared) vectors
+endtoendDistance=np.zeros([c.nBeads,2])
+endtoendDistance[1,:]=c.linkDistance
 
 # Generate the polymers
 for k in range(c.nPolymers):
@@ -27,11 +27,14 @@ for k in range(c.nPolymers):
 
 # Calculate average end-to-end distance as a function of the number of beads
 totalEndtoend=np.zeros(c.nBeads)
+totalEndtoendSq=np.zeros(c.nBeads)
 
 for z in range(c.nPolymers):
-    totalEndtoend+=endtoendDistances[z]
+    totalEndtoend+=endtoendDistances[z][:,0]
+    totalEndtoendSq+=endtoendDistances[z][:,1]
 
 averageEndtoend=totalEndtoend/c.nPolymers #Errors not calculated yet
+averageEndtoendSq=totalEndtoendSq/c.nPolymers
 
 # Calculate gyradius
 gyradius=np.zeros(c.nPolymers)
@@ -52,5 +55,5 @@ if(c.minEp):
     minEp = minimizeEp(polymers);
 
 # Add plot of some/all polymers
-plotPolymers(polymers, endtoendDistances, averageEndtoend, minEp)
+plotPolymers(polymers, endtoendDistances, averageEndtoend, averageEndtoendSq, minEp)
 print ("Gyradius of each polymer:", gyradius)
