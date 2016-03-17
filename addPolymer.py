@@ -24,23 +24,19 @@ def calculateAngles(r, L):
 def chooseAngle(w, W, angles):
     if(W==0):
         print('Problem with angle! Chance for each angle is 0.') # High chance that polymer is crossing
-        return angles[rand.randrange(0,5)];
+        return angles[rand.randrange(0, c.nAngles)];
     else:
         p=w/W;
         number = rand.random();
         for i in range(c.nAngles):
-            # Lower lim
-            lower = 0;
-            if(i > 0):
-                lower = np.sum(p[0:i]);
             # Upper lim
-            upper = lower + p[i]
+            upper = np.sum(p[0:i]) + p[i]
 
-            if( lower <= number < upper ):
+            if( number <= upper ):
                 return angles[i];
         # Could happen if w's nan
         print('Problem with angle! W is ', W);
-        return angles[rand.randrange(0,5)];
+        return angles[rand.randrange(0, c.nAngles)];
 
 
 def addBead(r, L, polWeight, endtoendDistance):
