@@ -9,7 +9,9 @@ nAngles         = 6;                                # Number of possible angles
 nPolymers       = 100;                              # Number of polymers
 
 # PERM
-PERM            = False;                            # Enables or disables the prunning/enriching part
+PERM            = False;                            # Enables or disables the pruning/enriching part
+alphaUpLim      = 2;                                # Constant for enrichining
+alphaLowLim     = 1.2;                              # Constant for pruning
 
 # Energy minimization algorithm
 minEp           = True;                             # Set minimization on or off

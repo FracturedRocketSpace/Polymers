@@ -4,28 +4,15 @@
 
 import config as c
 import numpy as np
-from addPolymer import addPolymer
+from addPolymers import addPolymers
 from plotPolymers import plotPolymers
 from minimizeEp import minimizeEp
 
-# Initiate lists
-polymers = [];
-endtoendDistances = [];
-
-# Initiate position vector
-r = np.zeros((c.nBeads, 2));
-r[1,1] = c.linkDistance;
-
-# Initialize end to end distance (and squared) vectors
-endtoendDistance=np.zeros([c.nBeads,2])
-endtoendDistance[1,:]=c.linkDistance
-
 # Generate the polymers
-for k in range(c.nPolymers):
-    addPolymer(np.copy(r), 2, 0, polymers, np.copy(endtoendDistance), endtoendDistances)
-    print("Polymer", k+1, "has been constructed")
+polymers, polWeights, endtoendDistances = addPolymers();
 
 # Calculate average end-to-end distance as a function of the number of beads
+#TODO: put this in another file
 totalEndtoend=np.zeros(c.nBeads)
 totalEndtoendSq=np.zeros(c.nBeads)
 polymerEndtoend=np.zeros(c.nPolymers)
@@ -48,6 +35,7 @@ averageEndtoendSq=totalEndtoendSq/c.nPolymers
 #Calculated errors are much larger than in the book!
 
 # Calculate gyradius and errors
+#TODO: put this in another file
 gyradius=np.zeros(c.nPolymers)
 
 for w in range(c.nPolymers):
