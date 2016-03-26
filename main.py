@@ -11,46 +11,63 @@ from minimizeEp import minimizeEp
 # Initiate lists
 polymers = [];
 endtoendDistances = [];
+weights=[];
+attrition=[];
 
 # Initiate position vector
 r = np.zeros((c.nBeads, 2));
 r[1,1] = c.linkDistance;
+polWeight=np.zeros((c.nBeads,1))
 
 # Initialize end to end distance (and squared) vectors
 endtoendDistance=np.zeros([c.nBeads,2])
 endtoendDistance[1,:]=c.linkDistance
 
+#Initialize polWeight
+polWeight[0,0]=1
+polWeight[1,0]=1
+
 # Generate the polymers
 for k in range(c.nPolymers):
-    addPolymer(np.copy(r), 2, 0, polymers, np.copy(endtoendDistance), endtoendDistances)
+    addPolymer(np.copy(r), 2, polymers, np.copy(endtoendDistance), endtoendDistances, np.copy(polWeight), weights, attrition)
     print("Polymer", k+1, "has been constructed")
 
 # Calculate average end-to-end distance as a function of the number of beads
-totalEndtoend=np.zeros(c.nBeads)
-totalEndtoendSq=np.zeros(c.nBeads)
-polymerEndtoend=np.zeros(c.nPolymers)
-polymerEndtoendSq=np.zeros(c.nPolymers)
-errorEndtoend=np.zeros(c.nBeads)
-errorEndtoendSq=np.zeros(c.nBeads)
+sigmaWeightedEndtoend=np.zeros(c.nBeads)
+sigmaWeightedEndtoendSq=np.zeros(c.nBeads)
+sigmaWeights=np.zeros(c.nBeads)
+weightedEndtoendVarNumerator=np.zeros(c.nBeads)
+weightedEndtoendSqVarNumerator=np.zeros(c.nBeads)
 
-for a in range(c.nBeads):
-    for z in range(c.nPolymers):
-        if a == c.nBeads-1:        
-            totalEndtoend+=endtoendDistances[z][:,0]
-            totalEndtoendSq+=endtoendDistances[z][:,1]
-        polymerEndtoend[z]=endtoendDistances[z][a,0]
-        polymerEndtoendSq[z]=endtoendDistances[z][a,1]
-    errorEndtoend[a]=np.std(polymerEndtoend)
-    errorEndtoendSq[a]=np.std(polymerEndtoendSq)
+for z in range(len(polymers)):
+    sigmaWeightedEndtoend+=weights[z][:,0]*endtoendDistances[z][:,0]
+    sigmaWeightedEndtoendSq+=weights[z][:,0]*endtoendDistances[z][:,1]
+    sigmaWeights+=weights[z][:,0]
 
-averageEndtoend=totalEndtoend/c.nPolymers
-averageEndtoendSq=totalEndtoendSq/c.nPolymers
-#Calculated errors are much larger than in the book!
+weightedEndtoend=sigmaWeightedEndtoend/sigmaWeights
+weightedEndtoendSq=sigmaWeightedEndtoendSq/sigmaWeights
+#Fluctuations for large number of beads also visible in our simulation now (compare with Thijssen fig. 10.3)         
 
-# Calculate gyradius and errors
+for z in range(len(polymers)):
+    weightedEndtoendVarNumerator+=weights[z][:,0]*(endtoendDistances[z][:,0]-weightedEndtoend)**2
+    weightedEndtoendSqVarNumerator+=weights[z][:,0]*(endtoendDistances[z][:,1]-weightedEndtoendSq)**2
+
+weightedEndtoendVar=weightedEndtoendVarNumerator/sigmaWeights
+weightedEndtoendSqVar=weightedEndtoendSqVarNumerator/sigmaWeights
+
+weightedEndtoendStd=weightedEndtoendVar**0.5
+weightedEndtoendSqStd=weightedEndtoendSq**0.5
+#Not sure if this method for weighted variance is correct. Errors still do not correspond with Thijssen fig 10.3.
+
+# Calculate attrition
+totalAttrition=np.zeros(c.nBeads)
+for w in range(len(attrition)):
+    totalAttrition+=(attrition[w][:,0]==0)
+
+# Calculate gyradius and errors -> Needs to be improved
 gyradius=np.zeros(c.nPolymers)
 
-for w in range(c.nPolymers):
+for w in range(len(polymers)):
     meanX=np.mean(polymers[w][:,0])
     meanY=np.mean(polymers[w][:,1])
     totaldeviationSquared=0
@@ -59,8 +76,9 @@ for w in range(c.nPolymers):
         deviationSquared=np.inner(deviation,deviation)
         totaldeviationSquared+=deviationSquared
     gyradius[w]=totaldeviationSquared/c.nBeads
-    averageGyradiusSquared=np.mean(gyradius)
-    errorAverageGyradiusSquared=np.std(gyradius)
+
+averageGyradiusSquared=np.mean(gyradius)
+errorAverageGyradiusSquared=np.std(gyradius)
 
 #Interpretation: The larger the gyradius, the larger the mean squared difference with the average bead position, so the more stretched the polymer is. 
 #Of is het de bedoeling de gyradius na iedere add bead uit te rekenen, net zoals bij de end-to-end distance?
@@ -71,6 +89,6 @@ if(c.minEp):
     minEp = minimizeEp(polymers);
 
 # Add plot of some/all polymers
-plotPolymers(polymers, endtoendDistances, averageEndtoend, errorEndtoend, averageEndtoendSq, errorEndtoendSq, minEp)
+plotPolymers(polymers, endtoendDistances, weightedEndtoend, weightedEndtoendStd, weightedEndtoendSq, weightedEndtoendSqStd, minEp, totalAttrition)
 print ("Gyradius squared of each polymer:", gyradius)
 print ("Average gyradius squared=", averageGyradiusSquared, "with standard deviation=", errorAverageGyradiusSquared)
