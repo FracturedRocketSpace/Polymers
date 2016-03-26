@@ -13,6 +13,7 @@ polymers, polWeights, endtoendDistances = addPolymers();
 
 # Calculate average end-to-end distance as a function of the number of beads
 #TODO: put this in another file
+#TODO: Code below does not handle changed population size due to PERM
 totalEndtoend=np.zeros(c.nBeads)
 totalEndtoendSq=np.zeros(c.nBeads)
 polymerEndtoend=np.zeros(c.nPolymers)
@@ -36,6 +37,7 @@ averageEndtoendSq=totalEndtoendSq/c.nPolymers
 
 # Calculate gyradius and errors
 #TODO: put this in another file
+#TODO: Code below does not handle changed population size due to PERM
 gyradius=np.zeros(c.nPolymers)
 
 for w in range(c.nPolymers):
@@ -53,12 +55,20 @@ for w in range(c.nPolymers):
 #Interpretation: The larger the gyradius, the larger the mean squared difference with the average bead position, so the more stretched the polymer is. 
 #Of is het de bedoeling de gyradius na iedere add bead uit te rekenen, net zoals bij de end-to-end distance?
 
+# Calculate attrition
+#TODO: Put this in another file with the above 2
+attrition = np.zeros(c.nBeads);
+if(c.PERM is False):
+    for i in range(c.nBeads):
+        temp = np.asarray(polWeights)[:,i];
+        attrition[i] = len( np.flatnonzero(temp!=0) )/c.nPolymers;
+
 # Ep minimalisation
 minEp=0;
 if(c.minEp):
     minEp = minimizeEp(polymers);
 
 # Add plot of some/all polymers
-plotPolymers(polymers, endtoendDistances, averageEndtoend, errorEndtoend, averageEndtoendSq, errorEndtoendSq, minEp)
+plotPolymers(polymers, endtoendDistances, averageEndtoend, errorEndtoend, averageEndtoendSq, errorEndtoendSq, minEp, attrition)
 print ("Gyradius squared of each polymer:", gyradius)
 print ("Average gyradius squared=", averageGyradiusSquared, "with standard deviation=", errorAverageGyradiusSquared)
