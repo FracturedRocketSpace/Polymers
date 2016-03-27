@@ -14,40 +14,37 @@ def calculateAvWeight(polWeight,alive,L):
         if(polWeight[k][L] > 0 and alive[k]):
             totalWeight += polWeight[k][L];
         
-    return totalWeight/len(polWeight);
+    return totalWeight/alive.count(True);
 
-def enrich(polPositions,polWeights,endtoendDistance,alive,L, avWeight, avWeight3):
+def enrich(polPositions,polWeights,endtoendDistance,alive,L,k, avWeight, avWeight3):
     enrichCounter = 0;    
-    for k in range(len(polPositions)):
-        upLim = c.alphaUpLim * avWeight / avWeight3;        
+    upLim = c.alphaUpLim * avWeight / avWeight3;        
+    
+    if(polWeights[k][L] > upLim and alive[k]):
+        enrichCounter += 1;
+        newWeight = 0.5 * polWeights[k][L];
+        polWeights[k][L] = newWeight;
         
-        if(polWeights[k][L] > upLim and alive[k]):
-            enrichCounter += 1;
-            newWeight = 0.5 * polWeights[k][L];
-            polWeights[k][L] = newWeight;
-            
-            polPositions.append(np.copy(polPositions[k]));
-            polWeights.append(np.copy(polWeights[k]));
-            endtoendDistance.append(np.copy(endtoendDistance[k]));
-            alive.append(np.copy(alive[k]));
+        polPositions.append(np.copy(polPositions[k]));
+        polWeights.append(np.copy(polWeights[k]));
+        endtoendDistance.append(np.copy(endtoendDistance[k]));
+        alive.append(np.copy(alive[k]));
             
     print("number of polymers duplicated: ", enrichCounter);
 
-def prune(polPositions,polWeights,endtoendDistance,alive,L, avWeight, avWeight3):
+def prune(polPositions,polWeights,endtoendDistance,alive,L,k, avWeight, avWeight3):
     pruneCounter = 0;    
-    for k in range(len(polPositions)):
-        
-        lowLim = c.alphaLowLim * avWeight / avWeight3;        
-        if(polWeights[k][L] <= 0):
-            pruneCounter += 1;
+    lowLim = c.alphaLowLim * avWeight / avWeight3;        
+    if(polWeights[k][L] <= 0):
+        pruneCounter += 1;
+        alive[k] = False;
+    elif(polWeights[k][L] < lowLim and alive[k]):
+        if(rand.uniform(0,1) < 0.5):
+            newWeight = 2*polWeights[k][L];
+            polWeights[k][L] = newWeight;
+        else:
             alive[k] = False;
-        elif(polWeights[k][L] < lowLim and alive[k]):
-            if(rand.uniform(0,1) < 0.5):
-                newWeight = 2*polWeights[k][L];
-                polWeights[k][L] = newWeight;
-            else:
-                alive[k] = False;
-                pruneCounter += 1;
+            pruneCounter += 1;
                 
     print("number of polymers killed: ", pruneCounter);
                 
@@ -119,25 +116,25 @@ def addPolymers():
         endtoendDistances[k][1,1]=c.linkDistance
 
     #generate polymers and save the values in lists
-    for L in range(2,c.nBeads):
-        #add beads
-        for k in range(len(polPositions)):
+    k = 0
+    while k < len(polPositions):
+        for L in range(2,c.nBeads):
             if(alive[k]):
                 addBead(polPositions[k],polWeights[k],endtoendDistances[k],L);
             
-        #enrich and prune                        
-        if(c.PERM):
-            avWeight = calculateAvWeight(polWeights,alive,L);
-            if(L==2):            
-                avWeight3 = avWeight;
-            print("average weight: ", avWeight);
-            print("uplim: ", c.alphaUpLim * avWeight / avWeight3, "lowlim: ", c.alphaLowLim * avWeight / avWeight3);
-            
-            prune(polPositions,polWeights,endtoendDistances,alive,L, avWeight, avWeight3);
-            enrich(polPositions,polWeights,endtoendDistances,alive,L, avWeight, avWeight3);
-            
-        print("bead", L, " done!\tPolymers: ", len(polPositions), "\tAlive:", alive.count(True));
+                #enrich and prune                        
+                if(c.PERM):
+                    avWeight3 = calculateAvWeight(polWeights[:(k+1)],alive[:(k+1)],2);
+                    avWeight = calculateAvWeight(polWeights[:(k+1)],alive[:(k+1)],L);
+                    print("average weight: ", avWeight);
+                    print("uplim: ", c.alphaUpLim * avWeight / avWeight3, "lowlim: ", c.alphaLowLim * avWeight / avWeight3);
+                    
+                    prune(polPositions,polWeights,endtoendDistances,alive,L,k, avWeight, avWeight3);
+                    enrich(polPositions,polWeights,endtoendDistances,alive,L,k, avWeight, avWeight3);
+                
+        print("polymer", k, " done!\tPolymers: ", len(polPositions), "\tAlive:", alive.count(True));
         print(" ");
+        k+=1;
         
     # remove all dead polymers
     alivePolPositions = [];

@@ -3,15 +3,15 @@
 #==============================================================================
 
 linkDistance    = 1;                                # Distance between two successive particles in the polymer chain
-nBeads          = 70;                              # Length of the polymer in beads
+nBeads          = 200;                              # Length of the polymer in beads
 T               = 10;                               # Temperature
 nAngles         = 6;                                # Number of possible angles
-nPolymers       = 50;                              # Number of polymers
+nPolymers       = 1000;                              # Number of polymers
 
 # PERM
 PERM            = True;                            # Enables or disables the pruning/enriching part
 alphaUpLim      = 2;                                # Constant for enrichining
-alphaLowLim     = 0.5;                              # Constant for pruning
+alphaLowLim     = 1.2;                              # Constant for pruning
 
 # Energy minimization algorithm
 minEp           = False;                            # Set minimization on or off
@@ -30,4 +30,4 @@ epsilon         = 0.25;                             # Value proposed in the book
 sigma           = 0.8;                              # Value proposed in the book. Distance for which potential is zero
 
 # Plot things
-plotMaxPolymers = 15;                               # Maximum number of polymers plotted.
+plotMaxPolymers = 3;                               # Maximum number of polymers plotted.
