@@ -115,7 +115,8 @@ def addPolymers():
             if(alive[k]):
                 addBead(polPositions[k],polWeights[k],endtoendDistances[k],L);
             
-        #enrich and prune
+    #enrich and prune
+    if(c.PERM):
         avWeight = calculateAvWeight(polWeights,alive,L);
         prune(polPositions,polWeights,endtoendDistances,alive,L, avWeight);
         enrich(polPositions,polWeights,endtoendDistances,alive,L, avWeight);

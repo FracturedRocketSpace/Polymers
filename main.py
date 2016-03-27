@@ -53,12 +53,20 @@ for w in range(len(polymers)):
 #Interpretation: The larger the gyradius, the larger the mean squared difference with the average bead position, so the more stretched the polymer is. 
 #Of is het de bedoeling de gyradius na iedere add bead uit te rekenen, net zoals bij de end-to-end distance?
 
+# Calculate attrition
+#TODO: Put this in another file with the above 2
+attrition = np.zeros(c.nBeads);
+if(c.PERM is False):
+    for i in range(c.nBeads):
+        temp = np.asarray(polWeights)[:,i];
+        attrition[i] = len( np.flatnonzero(temp!=0) )/len(polymers);
+
 # Ep minimalisation
 minEp=0;
 if(c.minEp):
     minEp = minimizeEp(polymers);
 
 # Add plot of some/all polymers
-plotPolymers(polymers, endtoendDistances, averageEndtoend, errorEndtoend, averageEndtoendSq, errorEndtoendSq, minEp)
+plotPolymers(polymers, endtoendDistances, averageEndtoend, errorEndtoend, averageEndtoendSq, errorEndtoendSq, minEp, attrition)
 print ("Gyradius squared of each polymer:", gyradius)
 print ("Average gyradius squared=", averageGyradiusSquared, "with standard deviation=", errorAverageGyradiusSquared)

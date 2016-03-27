@@ -14,7 +14,7 @@ alphaUpLim      = 2;                                # Constant for enrichining
 alphaLowLim     = 1.2;                              # Constant for pruning
 
 # Energy minimization algorithm
-minEp           = True;                             # Set minimization on or off
+minEp           = False;                            # Set minimization on or off
 minIter         = 50;                               # Nunber of iterations
 enrichFrac      = int(1/6 * nPolymers);             # Fraction that is multipled per iteration
 pruneFrac       = int(1/4 * nPolymers);             # Fraction that is removed per iteration
@@ -28,3 +28,6 @@ mass            = 1;                                # Particle mass
 # Lennard Jones parameters
 epsilon         = 0.25;                             # Value proposed in the book. Depth of energy potential well
 sigma           = 0.8;                              # Value proposed in the book. Distance for which potential is zero
+
+# Plot things
+plotMaxPolymers = 15;                               # Maximum number of polymers plotted.
