@@ -115,12 +115,13 @@ def addPolymers():
             if(alive[k]):
                 addBead(polPositions[k],polWeights[k],endtoendDistances[k],L);
             
-    #enrich and prune
-    if(c.PERM):
-        avWeight = calculateAvWeight(polWeights,alive,L);
-        prune(polPositions,polWeights,endtoendDistances,alive,L, avWeight);
-        enrich(polPositions,polWeights,endtoendDistances,alive,L, avWeight);
-        print("bead", L, " done!\tCurrent polymers: ", len(polPositions));
+        #enrich and prune
+        if(c.PERM):
+            avWeight = calculateAvWeight(polWeights,alive,L);
+            prune(polPositions,polWeights,endtoendDistances,alive,L, avWeight);
+            enrich(polPositions,polWeights,endtoendDistances,alive,L, avWeight);
+        
+        print("bead", L, " done!\tPolymers: ", len(polPositions), "\tAlive:", alive.count(True));
     
     # remove all dead polymers
     alivePolPositions = [];

@@ -9,7 +9,7 @@ nAngles         = 6;                                # Number of possible angles
 nPolymers       = 1000;                              # Number of polymers
 
 # PERM
-PERM            = False;                            # Enables or disables the pruning/enriching part
+PERM            = True;                            # Enables or disables the pruning/enriching part
 alphaUpLim      = 2;                                # Constant for enrichining
 alphaLowLim     = 1.2;                              # Constant for pruning
 
