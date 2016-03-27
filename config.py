@@ -10,7 +10,7 @@ nPolymers       = 1000;                              # Number of polymers
 
 # PERM
 PERM            = True;                            # Enables or disables the pruning/enriching part
-alphaUpLim      = 2;                                # Constant for enrichining
+alphaUpLim      = 2.2;                                # Constant for enrichining
 alphaLowLim     = 1.2;                              # Constant for pruning
 
 # Energy minimization algorithm

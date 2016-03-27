@@ -8,46 +8,31 @@ import numpy as np
 import math as m
 from calculateEP import calculateEP
 
-def calculateAvWeight(polWeight,alive,L):
-    totalWeight = 0;
-    for k in range(len(polWeight)):
-        if(polWeight[k][L] > 0 and alive[k]):
-            totalWeight += polWeight[k][L];
-        
-    return totalWeight/alive.count(True);
+def pruneANDenrich(polPositions,polWeights,endtoendDistance,alive,L,k, avWeight, avWeight3):
+    lowLim = c.alphaLowLim * avWeight / avWeight3;
+    upLim = c.alphaUpLim * avWeight / avWeight3;
 
-def enrich(polPositions,polWeights,endtoendDistance,alive,L,k, avWeight, avWeight3):
-    enrichCounter = 0;    
-    upLim = c.alphaUpLim * avWeight / avWeight3;        
-    
-    if(polWeights[k][L] > upLim and alive[k]):
-        enrichCounter += 1;
-        newWeight = 0.5 * polWeights[k][L];
-        polWeights[k][L] = newWeight;
-        
+    if(polWeights[k][L] < lowLim):
+        if(rand.uniform(0,1) < 0.5):
+            polWeights[k][L] *= 2;
+            #print("Polymer not removed at step ", L);
+        else:
+            alive[k] = False;
+            polWeights[k][L] = 0;
+            #print("Polymer removed at step: ", L);
+
+    elif(polWeights[k][L] > upLim and alive.count(True) < c.nPolymers):
+        polWeights[k][L] /= 2;
+
         polPositions.append(np.copy(polPositions[k]));
         polWeights.append(np.copy(polWeights[k]));
         endtoendDistance.append(np.copy(endtoendDistance[k]));
-        alive.append(np.copy(alive[k]));
-            
-    print("number of polymers duplicated: ", enrichCounter);
 
-def prune(polPositions,polWeights,endtoendDistance,alive,L,k, avWeight, avWeight3):
-    pruneCounter = 0;    
-    lowLim = c.alphaLowLim * avWeight / avWeight3;        
-    if(polWeights[k][L] <= 0):
-        pruneCounter += 1;
-        alive[k] = False;
-    elif(polWeights[k][L] < lowLim and alive[k]):
-        if(rand.uniform(0,1) < 0.5):
-            newWeight = 2*polWeights[k][L];
-            polWeights[k][L] = newWeight;
-        else:
-            alive[k] = False;
-            pruneCounter += 1;
-                
-    print("number of polymers killed: ", pruneCounter);
-                
+        alive.append(True);
+        #print("Polymer doubled at step:", L);
+    #else:
+    #    print("Did nothing.")
+
 
 def calculateAngles(r, L):
     # Calculate angle weights
@@ -93,7 +78,7 @@ def addBead(r, polWeight, endtoendDistance, L):
 
     endtoendDistance[L,0]=m.sqrt(r[L,0]**2+r[L,1]**2)
     endtoendDistance[L,1]=r[L,0]**2+r[L,1]**2
-    
+
     polWeight[L] = polWeight[L-1]* W/(0.75 * c.nAngles);
 
 def addPolymers():
@@ -102,49 +87,69 @@ def addPolymers():
     polWeights = [];
     endtoendDistances = [];
     alive = [];
-    
-    #fill the lists with empty polymers
-    for k in range(c.nPolymers):
-        polPositions.append(np.zeros([c.nBeads,2]));
-        polWeights.append(np.ones([c.nBeads,1]));
-        endtoendDistances.append(np.zeros([c.nBeads,2]));
-        alive.append(True);
-        
-    #set initial beads
-    for k in range(c.nPolymers):
-        polPositions[k][1,1] = c.linkDistance;
-        endtoendDistances[k][1,1]=c.linkDistance
+    avWeight = np.zeros([c.nBeads,2])
+
 
     #generate polymers and save the values in lists
-    k = 0
-    while k < len(polPositions):
-        for L in range(2,c.nBeads):
+    k = 0;
+    numCreated = 0;
+    while numCreated < int(c.nPolymers/5):
+        # Start new; Otherwise continue one already created.
+        if(k == len(polPositions)):
+            polPositions.append(np.zeros([c.nBeads,2]));
+            polWeights.append(np.zeros([c.nBeads,1]));
+            endtoendDistances.append(np.zeros([c.nBeads,2]));
+            alive.append(True);
+
+            polWeights[k][0] = 1;
+            polWeights[k][1] = 1;
+            polPositions[k][1,1] = c.linkDistance;
+            endtoendDistances[k][1,1]=c.linkDistance
+
+            numCreated += 1;
+
+            start = 2;
+
+        else:
+            # Find starting position
+            for L in range(2,c.nBeads):
+                if(polWeights[k][L]==0):
+                    start = L - 1;
+                    break;
+
+        print('Iteration starts at: ', start)
+
+        for L in range(start,c.nBeads):
             if(alive[k]):
                 addBead(polPositions[k],polWeights[k],endtoendDistances[k],L);
-            
-                #enrich and prune                        
+
+                #enrich and prune
                 if(c.PERM):
-                    avWeight3 = calculateAvWeight(polWeights[:(k+1)],alive[:(k+1)],2);
-                    avWeight = calculateAvWeight(polWeights[:(k+1)],alive[:(k+1)],L);
-                    print("average weight: ", avWeight);
-                    print("uplim: ", c.alphaUpLim * avWeight / avWeight3, "lowlim: ", c.alphaLowLim * avWeight / avWeight3);
-                    
-                    prune(polPositions,polWeights,endtoendDistances,alive,L,k, avWeight, avWeight3);
-                    enrich(polPositions,polWeights,endtoendDistances,alive,L,k, avWeight, avWeight3);
-                
-        print("polymer", k, " done!\tPolymers: ", len(polPositions), "\tAlive:", alive.count(True));
+                    # Update avWeight
+                    avWeight[L,0] += polWeights[k][L];
+                    avWeight[L,1] += 1;
+
+
+                    avWeight3 = avWeight[2,0];
+                    avWeightL = avWeight[L,0];
+
+                    pruneANDenrich(polPositions, polWeights, endtoendDistances, alive, L, k, avWeightL, avWeight3);
+            else:
+                break;
+
+        print("polymer", k+1, " done!\tPolymers: ", len(polPositions), "\tAlive:", alive.count(True),"\tStarted:", numCreated);
         print(" ");
         k+=1;
-        
+
     # remove all dead polymers
     alivePolPositions = [];
     alivePolWeights = [];
     aliveEndtoendDistances = [];
-    
+
     for k in range(len(polPositions)):
         if(alive[k]):
             alivePolPositions.append(polPositions[k]);
             alivePolWeights.append(polWeights[k]);
             aliveEndtoendDistances.append(endtoendDistances[k]);
-    
+
     return alivePolPositions, alivePolWeights, aliveEndtoendDistances
