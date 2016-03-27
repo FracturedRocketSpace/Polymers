@@ -25,15 +25,16 @@ def enrich(polPositions,polWeights,endtoendDistance,alive,L, avWeight):
             polWeights[k][L] = newWeight;
             
             polPositions.append(np.copy(polPositions[k]));
-            polWeights.append(np.copy(polPositions[k]));
-            endtoendDistance.append(np.copy(polPositions[k]));
+            polWeights.append(np.copy(polWeights[k]));
+            endtoendDistance.append(np.copy(endtoendDistance[k]));
             alive.append(np.copy(alive[k]));
 
 def prune(polPositions,polWeights,endtoendDistance,alive,L, avWeight):
     for k in range(len(polPositions)):
         downLim = c.alphaLowLim * avWeight / polWeights[k][2];        
-        
-        if(polWeights[k][L] < downLim and alive[k]):
+        if(polWeights[k][L] < 0):
+            alive[k] = False;
+        elif(polWeights[k][L] < downLim and alive[k]):
             if(rand.uniform(0,1) < 0.5):
                 newWeight = 2*polWeights[k][L];
                 polWeights[k][L] = newWeight;
@@ -86,7 +87,7 @@ def addBead(r, polWeight, endtoendDistance, L):
     endtoendDistance[L,0]=m.sqrt(r[L,0]**2+r[L,1]**2)
     endtoendDistance[L,1]=r[L,0]**2+r[L,1]**2
     
-    polWeight[L] = polWeight[L-1] * W;
+    polWeight[L] = polWeight[L-1]/(0.75 * c.nAngles); #*W
 
 def addPolymers():
     #initialize polymer list
@@ -118,5 +119,17 @@ def addPolymers():
         avWeight = calculateAvWeight(polWeights,alive,L);
         prune(polPositions,polWeights,endtoendDistances,alive,L, avWeight);
         enrich(polPositions,polWeights,endtoendDistances,alive,L, avWeight);
+        print("bead", L, " done!\tCurrent polymers: ", len(polPositions));
     
-    return polPositions, polWeights, endtoendDistances
+    # remove all dead polymers
+    alivePolPositions = [];
+    alivePolWeights = [];
+    aliveEndtoendDistances = [];
+    
+    for k in range(len(polPositions)):
+        if(alive[k]):
+            alivePolPositions.append(polPositions[k]);
+            alivePolWeights.append(polWeights[k]);
+            aliveEndtoendDistances.append(endtoendDistances[k]);
+    
+    return alivePolPositions, alivePolWeights, aliveEndtoendDistances

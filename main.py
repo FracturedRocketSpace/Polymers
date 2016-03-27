@@ -15,13 +15,13 @@ polymers, polWeights, endtoendDistances = addPolymers();
 #TODO: put this in another file
 totalEndtoend=np.zeros(c.nBeads)
 totalEndtoendSq=np.zeros(c.nBeads)
-polymerEndtoend=np.zeros(c.nPolymers)
-polymerEndtoendSq=np.zeros(c.nPolymers)
+polymerEndtoend=np.zeros(len(polymers))
+polymerEndtoendSq=np.zeros(len(polymers))
 errorEndtoend=np.zeros(c.nBeads)
 errorEndtoendSq=np.zeros(c.nBeads)
 
 for a in range(c.nBeads):
-    for z in range(c.nPolymers):
+    for z in range(len(polymers)):
         if a == c.nBeads-1:        
             totalEndtoend+=endtoendDistances[z][:,0]
             totalEndtoendSq+=endtoendDistances[z][:,1]
@@ -30,15 +30,15 @@ for a in range(c.nBeads):
     errorEndtoend[a]=np.std(polymerEndtoend)
     errorEndtoendSq[a]=np.std(polymerEndtoendSq)
 
-averageEndtoend=totalEndtoend/c.nPolymers
-averageEndtoendSq=totalEndtoendSq/c.nPolymers
+averageEndtoend=totalEndtoend/len(polymers)
+averageEndtoendSq=totalEndtoendSq/len(polymers)
 #Calculated errors are much larger than in the book!
 
 # Calculate gyradius and errors
 #TODO: put this in another file
-gyradius=np.zeros(c.nPolymers)
+gyradius=np.zeros(len(polymers))
 
-for w in range(c.nPolymers):
+for w in range(len(polymers)):
     meanX=np.mean(polymers[w][:,0])
     meanY=np.mean(polymers[w][:,1])
     totaldeviationSquared=0
