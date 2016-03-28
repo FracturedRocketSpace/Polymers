@@ -57,12 +57,14 @@ for w in range(len(polymers)):
 #Of is het de bedoeling de gyradius na iedere add bead uit te rekenen, net zoals bij de end-to-end distance?
 
 # Calculate attrition
+# For PERM it checks the population at each bead.
 #TODO: Put this in another file with the above 2
+#TODO: It is now just the population size.
 attrition = np.zeros(c.nBeads);
-if(c.PERM is False):
-    for i in range(c.nBeads):
-        temp = np.asarray(polWeights)[:,i];
-        attrition[i] = len( np.flatnonzero(temp!=0) )/len(polymers);
+for i in range(c.nBeads):
+    temp = np.asarray(polWeights)[:,i];
+    attrition[i] = len( np.flatnonzero(temp!=0) );
+
 
 # Ep minimalisation
 minEp=0;

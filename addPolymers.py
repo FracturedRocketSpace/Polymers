@@ -21,11 +21,13 @@ def pruneANDenrich(polPositions,polWeights,endtoendDistance,alive,L,k, avWeight,
             polWeights[k][L] = 0;
             #print("Polymer removed at step: ", L);
 
-    elif(polWeights[k][L] > upLim and alive.count(True) < c.nPolymers):
+    elif(polWeights[k][L] > upLim and alive.count(True) < c.aliveLim):
         polWeights[k][L] /= 2;
 
         polPositions.append(np.copy(polPositions[k]));
-        polWeights.append(np.copy(polWeights[k]));
+        #TODO: In principle entry L should be zero as well for the new branch.
+        polWeights.append(np.zeros([c.nBeads,1]));
+        polWeights[len(polWeights)-1][L] = polWeights[k][L];
         endtoendDistance.append(np.copy(endtoendDistance[k]));
 
         alive.append(True);
@@ -93,7 +95,7 @@ def addPolymers():
     #generate polymers and save the values in lists
     k = 0;
     numCreated = 0;
-    while numCreated < int(c.nPolymers/5):
+    while numCreated < int(c.nPolymers):
         # Start new; Otherwise continue one already created.
         if(k == len(polPositions)):
             polPositions.append(np.zeros([c.nBeads,2]));
@@ -113,8 +115,8 @@ def addPolymers():
         else:
             # Find starting position
             for L in range(2,c.nBeads):
-                if(polWeights[k][L]==0):
-                    start = L - 1;
+                if(polWeights[k][L] > 0):
+                    start = L + 1;
                     break;
 
         print('Iteration starts at: ', start)
@@ -141,15 +143,4 @@ def addPolymers():
         print(" ");
         k+=1;
 
-    # remove all dead polymers
-    alivePolPositions = [];
-    alivePolWeights = [];
-    aliveEndtoendDistances = [];
-
-    for k in range(len(polPositions)):
-        if(alive[k]):
-            alivePolPositions.append(polPositions[k]);
-            alivePolWeights.append(polWeights[k]);
-            aliveEndtoendDistances.append(endtoendDistances[k]);
-
-    return alivePolPositions, alivePolWeights, aliveEndtoendDistances
+    return polPositions, polWeights, endtoendDistances

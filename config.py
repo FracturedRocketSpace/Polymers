@@ -9,6 +9,7 @@ nBeads          = 100;                              # Length of the polymer in b
 T               = 10;                               # Temperature
 nAngles         = 6;                                # Number of possible angles
 nPolymers       = 1000;                              # Number of polymers
+aliveLim        = nPolymers*5;                      # Limits maximum number of alive polymers
 
 # PERM
 PERM            = True;                            # Enables or disables the pruning/enriching part
