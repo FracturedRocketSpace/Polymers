@@ -39,7 +39,7 @@ def chooseAngle(w, W, angles):
         return angles[rand.randrange(0, c.nAngles)];
 
 
-def addBead(r, L, endtoendDistance, polWeight):
+def addBead(r, L, polWeight, endtoendDistance):
     # Calculate angles and weights
     angles, w, W = calculateAngles(r, L);
 
@@ -49,11 +49,9 @@ def addBead(r, L, endtoendDistance, polWeight):
     # Add new bead!
     r[L,0] = r[L-1,0] + c.linkDistance*m.cos(angle)     # Position of the new bead for angle
     r[L,1] = r[L-1,1] + c.linkDistance*m.sin(angle)
-    
+
     endtoendDistance[L,0]=m.sqrt(r[L,0]**2+r[L,1]**2)
     endtoendDistance[L,1]=r[L,0]**2+r[L,1]**2
-
-    polWeight[L]=polWeight[L-1]*W 
 
     # Pruning
     if(c.PERM):
@@ -61,15 +59,13 @@ def addBead(r, L, endtoendDistance, polWeight):
 
     # Do next recursive step
     if(L+1 < c.nBeads):
-        addBead(r, L+1, endtoendDistance, polWeight)
+        polWeight *= W;
+        addBead(r, L+1, polWeight, endtoendDistance)
 
-def addPolymer(r, L, polymers, endtoendDistance, endtoendDistances, polWeight, weights, attrition):
+
+def addPolymer(r, L, polWeight, polymers, endtoendDistance, endtoendDistances):
     # Build up new polymer using recursive addBead
-    addBead(r, L, endtoendDistance, polWeight);
+    addBead(r, L, polWeight, endtoendDistance);
     # Save polymer
-    if polWeight[c.nBeads-1]>0:    
-        polymers.append(r);
-        endtoendDistances.append(endtoendDistance)
-        weights.append(polWeight)
-    else:
-        attrition.append(polWeight)
+    polymers.append(r);
+    endtoendDistances.append(endtoendDistance)

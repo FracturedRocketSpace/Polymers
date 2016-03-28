@@ -3,10 +3,11 @@
 #==============================================================================
 
 linkDistance    = 1;                                # Distance between two successive particles in the polymer chain
-nBeads          = 500;                              # Length of the polymer in beads
+
+nBeads          = 100;                              # Length of the polymer in beads
 T               = 10;                               # Temperature
 nAngles         = 6;                                # Number of possible angles
-nPolymers       = 5000;                              # Number of polymers
+nPolymers       = 100;                              # Number of polymers
 
 # PERM
 PERM            = False;                            # Enables or disables the prunning/enriching part
