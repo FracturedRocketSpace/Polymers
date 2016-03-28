@@ -7,6 +7,8 @@ import numpy as np
 from addPolymer import addPolymer
 from plotPolymers import plotPolymers
 from minimizeEp import minimizeEp
+import matplotlib.pyplot as plt
+
 
 # Initiate lists
 polymers = [];
@@ -92,3 +94,19 @@ if(c.minEp):
 plotPolymers(polymers, endtoendDistances, weightedEndtoend, weightedEndtoendStd, weightedEndtoendSq, weightedEndtoendSqStd, minEp, totalAttrition)
 print ("Gyradius squared of each polymer:", gyradius)
 print ("Average gyradius squared=", averageGyradiusSquared, "with standard deviation=", errorAverageGyradiusSquared)
+
+# Calculate and plot pesistance length
+lp1=np.zeros([c.nBeads, len(polymers) ])
+lp2=np.zeros([c.nBeads, len(polymers) ])
+for l in range(len(polymers)):
+    for k in range(np.size(polymers[l],0)-1):
+        a=polymers[l][k+1,:]-polymers[l][k,:]
+        lp1[k,l] = np.dot(a, polymers[l][-1,:]-polymers[l][k,:]  ) / c.linkDistance # Definition from 2 papers
+#        lp2[k,l] = np.dot(a, polymers[l][-1,:] ) / c.linkDistance # Definition from 1 paper
+
+plt.figure(2)
+plt.plot(np.mean(lp1,1))
+#plt.plot(np.mean(lp2,1))
+#plt.legend(["lp1", "lp2"])
+print ("Average persistence length method 1: ",np.mean(lp1), "std: ", np.std(np.mean(lp1,1) ))
+#print ("Average persistence length method 2: ",np.mean(lp2), "std: ", np.std(np.mean(lp2,1) ))
