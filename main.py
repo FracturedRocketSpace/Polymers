@@ -10,35 +10,29 @@ from minimizeEp import minimizeEp
 import matplotlib.pyplot as plt
 import math
 
-
 # Generate the polymers
 polymers, polWeights, endtoendDistances = addPolymers();
 
-# Calculate average end-to-end distance as a function of the number of beads
+# Calculate weighted average end-to-end distance (squared) as a function of the number of beads
 #TODO: put this in another file
-totalEndtoend=np.zeros(c.nBeads)
-totalEndtoendSq=np.zeros(c.nBeads)
-polymerEndtoend=np.zeros(len(polymers))
-polymerEndtoendSq=np.zeros(len(polymers))
-errorEndtoend=np.zeros(c.nBeads)
-errorEndtoendSq=np.zeros(c.nBeads)
 
-for a in range(c.nBeads):
-    for z in range(len(polymers)):
-        if a == c.nBeads-1:        
-            totalEndtoend+=endtoendDistances[z][:,0]
-            totalEndtoendSq+=endtoendDistances[z][:,1]
-        polymerEndtoend[z]=endtoendDistances[z][a,0]
-        polymerEndtoendSq[z]=endtoendDistances[z][a,1]
-    errorEndtoend[a]=np.std(polymerEndtoend)
-    errorEndtoendSq[a]=np.std(polymerEndtoendSq)
+sigmaWeightedEndtoendSq=np.zeros(c.nBeads)
+sigmaWeightedEndtoend4=np.zeros(c.nBeads)       #Endtoend4=EndtoendSq^2 -> necessary for calculation of variance
+sigmaWeights=np.zeros(c.nBeads)
 
-averageEndtoend=totalEndtoend/len(polymers)
-averageEndtoendSq=totalEndtoendSq/len(polymers)
-#Calculated errors are much larger than in the book!
+for z in range(len(polymers)):
+    sigmaWeightedEndtoendSq+=polWeights[z][:,0]*endtoendDistances[z][:,1]
+    sigmaWeightedEndtoend4+=polWeights[z][:,0]*endtoendDistances[z][:,2]        
+    sigmaWeights+=polWeights[z][:,0]
+    
+weightedEndtoendSq=sigmaWeightedEndtoendSq/sigmaWeights
+weightedEndtoend4=sigmaWeightedEndtoend4/sigmaWeights
 
+weightedEndtoendSqVar=weightedEndtoend4-weightedEndtoendSq**2               #Calculate weighted variance
+weightedEndtoendSqStd=weightedEndtoendSqVar**0.5                            #Calculate weighted standard deviation
+                
 # Calculate gyradius and errors
-#TODO: put this in another file
+#TODO: IMPROVE and put this in another file.
 gyradius=np.zeros(len(polymers))
 
 for w in range(len(polymers)):
@@ -72,7 +66,7 @@ if(c.minEp):
     minEp = minimizeEp(polymers);
 
 # Add plot of some/all polymers
-plotPolymers(polymers, endtoendDistances, averageEndtoend, errorEndtoend, averageEndtoendSq, errorEndtoendSq, minEp, attrition)
+plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, attrition)
 print ("Gyradius squared of each polymer:", gyradius)
 print ("Average gyradius squared=", averageGyradiusSquared, "with standard deviation=", errorAverageGyradiusSquared)
 

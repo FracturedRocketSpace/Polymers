@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import config as c
 
-def plotPolymers(polymers, endtoendDistances, averageEndtoend, errorEndtoend, averageEndtoendSq, errorEndtoendSq, minEp, attrition):
+def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, attrition):
     plt.figure(1)
 
     plt.subplot(231)
@@ -34,10 +34,11 @@ def plotPolymers(polymers, endtoendDistances, averageEndtoend, errorEndtoend, av
     plt.plot(attrition)
 
     plt.subplot(234)
-    plt.title('Average squared end-to-end distance vs number of beads')
+    plt.title('Weighted average end-to-end distance squared vs number of beads')
     plt.xlabel('Number of beads')
     plt.ylabel('End-to-end distance squared')
-    plt.errorbar(x,averageEndtoendSq,yerr=errorEndtoendSq)
+    #plt.plot(x,weightedEndtoendSq)    
+    plt.errorbar(x,weightedEndtoendSq,yerr=weightedEndtoendSqStd)
     plt.xscale('log')
     plt.yscale('log')
     plt.xlim([3,1000])

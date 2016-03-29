@@ -8,11 +8,11 @@ linkDistance    = 1;                                # Distance between two succe
 nBeads          = 100;                              # Length of the polymer in beads
 T               = 10;                               # Temperature
 nAngles         = 6;                                # Number of possible angles
-nPolymers       = 1000;                              # Number of polymers
+nPolymers       = 100;                              # Number of polymers
 aliveLim        = nPolymers*5;                      # Limits maximum number of alive polymers
 
 # PERM
-PERM            = True;                            # Enables or disables the pruning/enriching part
+PERM            = False;                            # Enables or disables the pruning/enriching part
 alphaUpLim      = 2.2;                                # Constant for enrichining
 alphaLowLim     = 1.2;                              # Constant for pruning
 
@@ -33,4 +33,4 @@ epsilon         = 0.25;                             # Value proposed in the book
 sigma           = 0.8;                              # Value proposed in the book. Distance for which potential is zero
 
 # Plot things
-plotMaxPolymers = 3;                               # Maximum number of polymers plotted.
+plotMaxPolymers = 10;                               # Maximum number of polymers plotted.

@@ -75,14 +75,18 @@ def addBead(r, polWeight, endtoendDistance, L):
     angle = chooseAngle(w, W, angles);
 
     # Add new bead
-    r[L,0] = r[L-1,0] + c.linkDistance*m.cos(angle)     # Position of the new bead for angle
+    r[L,0] = r[L-1,0] + c.linkDistance*m.cos(angle)         # Position of the new bead for angle
     r[L,1] = r[L-1,1] + c.linkDistance*m.sin(angle)
 
-    endtoendDistance[L,0]=m.sqrt(r[L,0]**2+r[L,1]**2)
-    endtoendDistance[L,1]=r[L,0]**2+r[L,1]**2
+    endtoendDistance[L,0]=(r[L,0]**2+r[L,1]**2)**0.5        #I use endtoend squared and to the power 4 now in order to calculate the variance in endtoend squared     
+    endtoendDistance[L,1]=(r[L,0]**2+r[L,1]**2)
+    endtoendDistance[L,2]=(r[L,0]**2+r[L,1]**2)**2
 
-    polWeight[L] = polWeight[L-1]* W/(0.75 * c.nAngles);
-
+    if (c.PERM==True):                                      # I think the correction factor is not necessary for normal Rosenbluth algorithm
+        polWeight[L] = polWeight[L-1]* W/(0.75 * c.nAngles);
+    else:
+        polWeight[L] = polWeight[L-1]* W    
+        
 def addPolymers():
     #initialize polymer list
     polPositions = [];
@@ -100,13 +104,15 @@ def addPolymers():
         if(k == len(polPositions)):
             polPositions.append(np.zeros([c.nBeads,2]));
             polWeights.append(np.zeros([c.nBeads,1]));
-            endtoendDistances.append(np.zeros([c.nBeads,2]));
+            endtoendDistances.append(np.zeros([c.nBeads,3]));
             alive.append(True);
 
             polWeights[k][0] = 1;
             polWeights[k][1] = 1;
             polPositions[k][1,1] = c.linkDistance;
-            endtoendDistances[k][1,1]=c.linkDistance
+            endtoendDistances[k][1,0]=c.linkDistance    #I use endtoend squared and to the power 4 now in order to calculate the variance in endtoend squared
+            endtoendDistances[k][1,1]=c.linkDistance**2
+            endtoendDistances[k][1,2]=c.linkDistance**4
 
             numCreated += 1;
 
