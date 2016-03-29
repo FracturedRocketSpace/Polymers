@@ -80,12 +80,14 @@ print ("Average gyradius squared=", averageGyradiusSquared, "with standard devia
 lp1=np.zeros([len(polymers),1])
 totalWeight=np.zeros([len(polymers),1])
 for l in range(len(polymers)):
-    lp1local=np.zeros([np.size(polymers[l]-1,0), 1 ])
-    for k in range(np.size(polymers[l],0)-1):
+    idxmax=np.max( np.argwhere(polymers[l][:,0]) )  # find highest nonzero index
+    lp1local=np.zeros([idxmax, 1 ])
+    for k in range(idxmax):
         a=polymers[l][k+1,:]-polymers[l][k,:]
-        lp1local[k] = np.dot(a, polymers[l][-1,:]-polymers[l][k,:]  ) / c.linkDistance
-    lp1[l]=np.dot( polWeights[l].T , lp1local ) / np.sum(polWeights[l])
-    totalWeight[l]=np.sum(polWeights[l])
+        lp1local[k] = np.dot(a, polymers[l][idxmax,:]-polymers[l][k,:]  ) / c.linkDistance
+    if np.sum(polWeights[l][0:idxmax])>0:
+        lp1[l]=np.dot( polWeights[l][0:idxmax].T , lp1local ) / np.sum(polWeights[l][0:idxmax])
+        totalWeight[l]=np.sum(polWeights[l][0:idxmax])
 
 lp1Avg=np.dot( totalWeight.T , lp1 ) / np.sum(totalWeight);   # Take average over polymers
 # Calculate error persistence length
