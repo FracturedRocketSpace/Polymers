@@ -78,9 +78,7 @@ def addBead(r, polWeight, endtoendDistance, L):
     r[L,0] = r[L-1,0] + c.linkDistance*m.cos(angle)         # Position of the new bead for angle
     r[L,1] = r[L-1,1] + c.linkDistance*m.sin(angle)
 
-    endtoendDistance[L,0]=(r[L,0]**2+r[L,1]**2)**0.5        #I use endtoend squared and to the power 4 now in order to calculate the variance in endtoend squared     
-    endtoendDistance[L,1]=(r[L,0]**2+r[L,1]**2)
-    endtoendDistance[L,2]=(r[L,0]**2+r[L,1]**2)**2
+    endtoendDistance[L]=(r[L,0]**2+r[L,1]**2)
 
     if (c.PERM==True):                                      # I think the correction factor is not necessary for normal Rosenbluth algorithm
         polWeight[L] = polWeight[L-1]* W/(0.75 * c.nAngles);
@@ -104,15 +102,13 @@ def addPolymers():
         if(k == len(polPositions)):
             polPositions.append(np.zeros([c.nBeads,2]));
             polWeights.append(np.zeros([c.nBeads,1]));
-            endtoendDistances.append(np.zeros([c.nBeads,3]));
+            endtoendDistances.append(np.zeros([c.nBeads,1]));
             alive.append(True);
 
             polWeights[k][0] = 1;
             polWeights[k][1] = 1;
             polPositions[k][1,1] = c.linkDistance;
-            endtoendDistances[k][1,0]=c.linkDistance    #I use endtoend squared and to the power 4 now in order to calculate the variance in endtoend squared
-            endtoendDistances[k][1,1]=c.linkDistance**2
-            endtoendDistances[k][1,2]=c.linkDistance**4
+            endtoendDistances[k][1]=c.linkDistance**2
 
             numCreated += 1;
 
@@ -143,6 +139,7 @@ def addPolymers():
 
                     pruneANDenrich(polPositions, polWeights, endtoendDistances, alive, L, k, avWeightL, avWeight3);
             else:
+                print('Iteration stops at: ', L)
                 break;
 
         print("polymer", k+1, " done!\tPolymers: ", len(polPositions), "\tAlive:", alive.count(True),"\tStarted:", numCreated);

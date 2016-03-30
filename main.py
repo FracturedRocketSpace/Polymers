@@ -16,21 +16,19 @@ polymers, polWeights, endtoendDistances = addPolymers();
 # Calculate weighted average end-to-end distance (squared) as a function of the number of beads
 #TODO: put this in another file
 
-sigmaWeightedEndtoendSq=np.zeros(c.nBeads)
-sigmaWeightedEndtoend4=np.zeros(c.nBeads)       #Endtoend4=EndtoendSq^2 -> necessary for calculation of variance
-sigmaWeights=np.zeros(c.nBeads)
+weightedEndtoendSq=np.zeros(c.nBeads)
+weightedEndtoendSqStd=np.zeros(c.nBeads)
 
-for z in range(len(polymers)):
-    sigmaWeightedEndtoendSq+=polWeights[z][:,0]*endtoendDistances[z][:,1]
-    sigmaWeightedEndtoend4+=polWeights[z][:,0]*endtoendDistances[z][:,2]        
-    sigmaWeights+=polWeights[z][:,0]
-    
-weightedEndtoendSq=sigmaWeightedEndtoendSq/sigmaWeights
-weightedEndtoend4=sigmaWeightedEndtoend4/sigmaWeights
+for z in range(c.nBeads):
+    # Get data
+    t1 = np.squeeze(np.asarray(endtoendDistances)[:,z])
+    t2 = np.squeeze(np.asarray(polWeights)[:,z]);
+    # Count non-Zero
+    dataLength = len( np.flatnonzero(t2!=0) );
 
-weightedEndtoendSqVar=weightedEndtoend4-weightedEndtoendSq**2               #Calculate weighted variance
-weightedEndtoendSqStd=weightedEndtoendSqVar**0.5                            #Calculate weighted standard deviation
-                
+    weightedEndtoendSq[z]=np.average(t1, weights=t2)
+    weightedEndtoendSqStd[z]=( (np.average((t1 - weightedEndtoendSq[z])**2, weights=t2))/(dataLength-1) )**(1/2)
+
 # Calculate gyradius and errors
 #TODO: IMPROVE and put this in another file.
 gyradius=np.zeros(len(polymers))

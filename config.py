@@ -5,8 +5,8 @@
 linkDistance    = 1;                                # Distance between two successive particles in the polymer chain
 
 
-nBeads          = 100;                              # Length of the polymer in beads
-T               = 10;                               # Temperature
+nBeads          = 250;                              # Length of the polymer in beads
+T               = 1;                               # Temperature
 nAngles         = 6;                                # Number of possible angles
 nPolymers       = 100;                              # Number of polymers
 aliveLim        = nPolymers*5;                      # Limits maximum number of alive polymers
