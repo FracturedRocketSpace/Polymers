@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import config as c
 
-def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, attrition):
+def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, attrition, weightedGyradiusSq, weightedGyradiusSqStd):
     plt.figure(1)
 
     plt.subplot(231)
@@ -19,9 +19,9 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
         plt.plot( r[:,0], r[:,1] )
 
     plt.subplot(232)
-    plt.title('End-to-end distance as a function of the number of beads')
+    plt.title('End-to-end distance squared vs the number of beads')
     plt.xlabel('Number of beads')
-    plt.ylabel('End-to-end distance')
+    plt.ylabel('End-to-end distance squared')
     x=np.linspace(1,c.nBeads, c.nBeads)
     for i in range(min(len(polymers),c.plotMaxPolymers)):
         y=endtoendDistances[i][:,0]
@@ -42,9 +42,18 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
     plt.xscale('log')
     plt.yscale('log')
     plt.xlim([3,1000])
+    
+    plt.subplot(235)
+    plt.title('Weighted average gyradius squared vs number of beads')
+    plt.xlabel('Number of beads')
+    plt.ylabel('Gyradius squared')
+    plt.errorbar(x,weightedGyradiusSq,yerr=weightedGyradiusSqStd)
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlim([3,1000])
 
     if(c.minEp):
-        plt.subplot(235)
+        plt.subplot(236)
         plt.title('Minimal potential energy at each genetic algorithm iteration')
         plt.xlabel('Iteration')
         plt.ylabel('Potential')

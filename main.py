@@ -31,22 +31,30 @@ for z in range(c.nBeads):
 
 # Calculate gyradius and errors
 #TODO: IMPROVE and put this in another file.
-gyradius=np.zeros(len(polymers))
+gyradiusSq=np.zeros([len(polymers),c.nBeads])
 
 for w in range(len(polymers)):
-    meanX=np.mean(polymers[w][:,0])
-    meanY=np.mean(polymers[w][:,1])
-    totaldeviationSquared=0
+    meanPosition=np.zeros([c.nBeads,2])
     for v in range(c.nBeads):
-        deviation=np.array([polymers[w][v,0]-meanX, polymers[w][v,1]-meanY])
-        deviationSquared=np.inner(deviation,deviation)
-        totaldeviationSquared+=deviationSquared
-    gyradius[w]=totaldeviationSquared/c.nBeads
-    averageGyradiusSquared=np.mean(gyradius)
-    errorAverageGyradiusSquared=np.std(gyradius)
+        meanPosition[v,0]=np.mean(polymers[w][0:v+1,0])
+        meanPosition[v,1]=np.mean(polymers[w][0:v+1,1])
+        totalDeviationSquared=0        
+        for u in range(v+1):
+            deviation=np.array([polymers[w][u,0]-meanPosition[v,0], polymers[w][u,1]-meanPosition[v,1]])    
+            deviationSquared=np.inner(deviation,deviation)
+            totalDeviationSquared+=deviationSquared
+        gyradiusSq[w,v]=totalDeviationSquared/(v+1)
+        
+weightedGyradiusSq=np.zeros(c.nBeads)
+weightedGyradiusSqStd=np.zeros(c.nBeads)
+
+for z in range(c.nBeads):
+    t3 = np.squeeze(np.asarray(polWeights)[:,z])
+    dataLength = len( np.flatnonzero(t3!=0) )
+    weightedGyradiusSq[z]=np.average(gyradiusSq[:,z], weights=t3)
+    weightedGyradiusSqStd[z]=( (np.average((gyradiusSq[:,z] - weightedGyradiusSq[z])**2, weights=t3))/(dataLength-1) )**(1/2)
 
 #Interpretation: The larger the gyradius, the larger the mean squared difference with the average bead position, so the more stretched the polymer is. 
-#Of is het de bedoeling de gyradius na iedere add bead uit te rekenen, net zoals bij de end-to-end distance?
 
 # Calculate attrition
 # For PERM it checks the population at each bead.
@@ -57,16 +65,13 @@ for i in range(c.nBeads):
     temp = np.asarray(polWeights)[:,i];
     attrition[i] = len( np.flatnonzero(temp!=0) );
 
-
 # Ep minimalisation
 minEp=0;
 if(c.minEp):
     minEp = minimizeEp(polymers);
 
 # Add plot of some/all polymers
-plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, attrition)
-print ("Gyradius squared of each polymer:", gyradius)
-print ("Average gyradius squared=", averageGyradiusSquared, "with standard deviation=", errorAverageGyradiusSquared)
+plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, attrition, weightedGyradiusSq, weightedGyradiusSqStd)
 
 # Calculate and plot pesistance length
 lp1=np.zeros([len(polymers),1])
