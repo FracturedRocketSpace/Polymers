@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import config as c
 
-def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, attrition, weightedGyradiusSq, weightedGyradiusSqStd):
+def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, popSize, weightedGyradiusSq, weightedGyradiusSqStd, lp1):
     plt.figure(1)
 
     plt.subplot(231)
@@ -28,21 +28,21 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
         plt.plot ( x, y)
 
     plt.subplot(233)
-    plt.title('Attrition')
+    plt.title('Population size')
     plt.xlabel('Number of beads')
-    plt.ylabel('Fraction survived')
-    plt.plot(attrition)
+    plt.ylabel('Number of polymers')
+    plt.plot(popSize)
 
     plt.subplot(234)
     plt.title('Weighted average end-to-end distance squared vs number of beads')
     plt.xlabel('Number of beads')
     plt.ylabel('End-to-end distance squared')
-    #plt.plot(x,weightedEndtoendSq)    
+    #plt.plot(x,weightedEndtoendSq)
     plt.errorbar(x,weightedEndtoendSq,yerr=weightedEndtoendSqStd)
     plt.xscale('log')
     plt.yscale('log')
     plt.xlim([3,1000])
-    
+
     plt.subplot(235)
     plt.title('Weighted average gyradius squared vs number of beads')
     plt.xlabel('Number of beads')
@@ -58,3 +58,8 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
         plt.xlabel('Iteration')
         plt.ylabel('Potential')
         plt.plot(minEp)
+
+    plt.figure(2)
+    plt.plot(lp1)
+    plt.xlabel('Polymer number')
+    plt.ylabel('Average local persistence length')
