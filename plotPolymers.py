@@ -8,6 +8,16 @@ import numpy as np
 import config as c
 
 def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, popSize, weightedGyradiusSq, weightedGyradiusSqStd, lp1, fittedWeightedEndtoendSq):
+    # Set Font and do something else; Just when output is needed.
+    #font = {'family' : 'normal',
+    #        'weight' : 'normal',
+    #        'size'   : 25}
+    #import matplotlib
+    #matplotlib.rc('font', **font)
+    #from matplotlib import rcParams
+    #rcParams.update({'figure.autolayout': True})
+
+    # The plots
     plt.figure(1)
 
     plt.subplot(231)
@@ -64,3 +74,12 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
     plt.plot(lp1)
     plt.xlabel('Polymer number')
     plt.ylabel('Average local persistence length')
+
+    # Population size plot
+    plt.figure(3)
+    plt.xlabel('Number of beads')
+    plt.ylabel('Number of polymers')
+    plt.locator_params(axis='x',nbins=4)
+    plt.plot(popSize, linewidth=2)
+    #plt.savefig('popSize.eps', bbox_inches='tight',  dpi=100)
+

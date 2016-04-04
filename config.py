@@ -25,10 +25,6 @@ pruneFrac       = int(1/4 * nPolymers);             # Fraction that is removed p
 numMates        = int((pruneFrac - enrichFrac)/2);  # Number of mating events per iteration; By making it equal to (pruneFrac-enrichFrac)/2 the number of polymers stay equal
 numMutations    = int(nPolymers/2);                 # Number of mutations per iteration
 
-# Constants
-kB              = 1;                                # Boltzmann constant
-mass            = 1;                                # Particle mass
-
 # Lennard Jones parameters
 epsilon         = 0.25;                             # Value proposed in the book. Depth of energy potential well
 sigma           = 0.8;                              # Value proposed in the book. Distance for which potential is zero

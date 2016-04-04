@@ -15,11 +15,9 @@ def pruneANDenrich(polPositions,polWeights,endtoendDistance,alive,L,k, avWeight,
     if(polWeights[k][L] < lowLim):
         if(rand.uniform(0,1) < 0.5):
             polWeights[k][L] *= 2;
-            #print("Polymer not removed at step ", L);
         else:
             alive[k] = False;
             polWeights[k][L] = 0;
-            #print("Polymer removed at step: ", L);
 
     elif(polWeights[k][L] > upLim and alive.count(True) < c.aliveLim):
         polWeights[k][L] /= 2;
@@ -31,10 +29,6 @@ def pruneANDenrich(polPositions,polWeights,endtoendDistance,alive,L,k, avWeight,
         endtoendDistance.append(np.copy(endtoendDistance[k]));
 
         alive.append(True);
-        #print("Polymer doubled at step:", L);
-    #else:
-    #    print("Did nothing.")
-
 
 def calculateAngles(r, L):
     # Calculate angle weights
@@ -45,7 +39,7 @@ def calculateAngles(r, L):
     for j in range (c.nAngles):                         #Calculate evenly spaced angles
         angles[j] = angleOffset +j *2*np.pi/c.nAngles
         E = calculateEP(r, angles[j], L)               #Calculate potential energy for new configuration
-        w[j] = m.exp(-E/(c.kB*c.T))                       #Calculate weights for each angle
+        w[j] = m.exp(-E/(c.T))                       #Calculate weights for each angle
         W += w[j]
     return angles, w, W
 
@@ -144,6 +138,8 @@ def addPolymers():
                     # Restart polymer
                     restarted = True;
                     break;
+                elif(polWeights[k][L] == 0):
+                    alive[k]=False;
             else:
                 print('Iteration stops at: ', L)
                 break;
