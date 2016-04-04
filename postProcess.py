@@ -105,9 +105,14 @@ def computePersistance(polymers, polWeights):
 def postProcess(polymers, polWeights, endtoendDistances):
     weightedEndtoendSq, weightedEndtoendSqStd = computeEndToEnd(endtoendDistances, polWeights);
     weightedGyradiusSq, weightedGyradiusSqStd = computeGyradius(polymers, polWeights);
+    print("End to End done")
+    print("Gyradius done")
     popt, pcov = curve_fit(fitFunction, np.arange(c.nBeads)+1 , weightedEndtoendSq);
     fittedWeightedEndtoendSq = fitFunction(np.arange(c.nBeads)+1,popt[0]);
+    print("Fitting done")
     popSize = computePopulation(polWeights);
+    print("Population calculated")
     lp1 = computePersistance(polymers, polWeights);
+    print("Persistence length calculated")
 
     return weightedEndtoendSq, weightedEndtoendSqStd,  weightedGyradiusSq, weightedGyradiusSqStd, popSize, lp1, fittedWeightedEndtoendSq

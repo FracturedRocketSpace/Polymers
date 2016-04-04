@@ -10,6 +10,7 @@ T               = 1;                               # Temperature
 nAngles         = 6;                                # Number of possible angles
 nPolymers       = 100;                              # Number of polymers
 aliveLim        = nPolymers*5;                      # Limits maximum number of alive polymers
+fixPop          = False;                             # Only if not PERM. Fixes population to nPolymers by restarting failed polymers.
 
 # PERM
 PERM            = False;                            # Enables or disables the pruning/enriching part

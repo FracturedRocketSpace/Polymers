@@ -97,7 +97,9 @@ def addPolymers():
     #generate polymers and save the values in lists
     k = 0;
     numCreated = 0;
-    while numCreated < int(c.nPolymers):
+    restarted = False;
+    while numCreated < int(c.nPolymers) or restarted:
+        restarted = False;
         # Start new; Otherwise continue one already created.
         if(k == len(polPositions)):
             polPositions.append(np.zeros([c.nBeads,2]));
@@ -138,12 +140,19 @@ def addPolymers():
                     avWeightL = avWeight[L,0];
 
                     pruneANDenrich(polPositions, polWeights, endtoendDistances, alive, L, k, avWeightL, avWeight3);
+                elif(c.fixPop and polWeights[k][L] == 0):
+                    # Restart polymer
+                    restarted = True;
+                    break;
             else:
                 print('Iteration stops at: ', L)
                 break;
 
-        print("polymer", k+1, " done!\tPolymers: ", len(polPositions), "\tAlive:", alive.count(True),"\tStarted:", numCreated);
-        print(" ");
-        k+=1;
-
+        if(restarted):
+            print("Building of polymer ", k+1, "failed! Restarting build process.");
+        else:
+            print("Polymer", k+1, " done!\tPolymers: ", len(polPositions), "\tAlive:", alive.count(True),"\tStarted:", numCreated);
+            print(" ");
+            k+=1;
+    # Return
     return polPositions, polWeights, endtoendDistances
