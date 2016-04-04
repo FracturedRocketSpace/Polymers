@@ -6,6 +6,11 @@ import config as c
 import numpy as np
 import math
 from numba import jit
+from scipy.optimize import curve_fit
+
+def fitFunction(N,a):
+    #the constant power is defined as 1.5 in the new version of the book
+    return a * (N-1) ** 1.5
 
 # Calculate weighted average end-to-end distance (squared) as a function of the number of beads
 #TODO: Make it faster or make it compatibale with hyperdrive
@@ -100,7 +105,9 @@ def computePersistance(polymers, polWeights):
 def postProcess(polymers, polWeights, endtoendDistances):
     weightedEndtoendSq, weightedEndtoendSqStd = computeEndToEnd(endtoendDistances, polWeights);
     weightedGyradiusSq, weightedGyradiusSqStd = computeGyradius(polymers, polWeights);
+    popt, pcov = curve_fit(fitFunction, np.arange(c.nBeads)+1 , weightedEndtoendSq);
+    fittedWeightedEndtoendSq = fitFunction(np.arange(c.nBeads)+1,popt[0]);
     popSize = computePopulation(polWeights);
     lp1 = computePersistance(polymers, polWeights);
 
-    return weightedEndtoendSq, weightedEndtoendSqStd,  weightedGyradiusSq, weightedGyradiusSqStd, popSize, lp1
+    return weightedEndtoendSq, weightedEndtoendSqStd,  weightedGyradiusSq, weightedGyradiusSqStd, popSize, lp1, fittedWeightedEndtoendSq

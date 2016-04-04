@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import config as c
 
-def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, popSize, weightedGyradiusSq, weightedGyradiusSqStd, lp1):
+def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, popSize, weightedGyradiusSq, weightedGyradiusSqStd, lp1, fittedWeightedEndtoendSq):
     plt.figure(1)
 
     plt.subplot(231)
@@ -39,6 +39,7 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
     plt.ylabel('End-to-end distance squared')
     #plt.plot(x,weightedEndtoendSq)
     plt.errorbar(x,weightedEndtoendSq,yerr=weightedEndtoendSqStd)
+    plt.plot(x,fittedWeightedEndtoendSq,color = "r")
     plt.xscale('log')
     plt.yscale('log')
     plt.xlim([3,1000])
