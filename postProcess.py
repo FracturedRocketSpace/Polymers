@@ -36,20 +36,16 @@ def computeEndToEnd(endtoendDistances, polWeights):
 #TODO: Make it faster or make it compatibale with hyperdrive
 #@jit( nopython=True )
 def computeGyradius(polymers, polWeights):
+    # Calc gyradius
     gyradiusSq=np.zeros([len(polymers),c.nBeads])
-
     for w in range(len(polymers)):
-        meanPosition=np.zeros([c.nBeads,2])
-        for v in range(c.nBeads):
-            meanPosition[v,0]=np.mean(polymers[w][0:v+1,0])
-            meanPosition[v,1]=np.mean(polymers[w][0:v+1,1])
-            totalDeviationSquared=0
-            for u in range(v+1):
-                deviation=np.array([polymers[w][u,0]-meanPosition[v,0], polymers[w][u,1]-meanPosition[v,1]])
-                deviationSquared=np.inner(deviation,deviation)
-                totalDeviationSquared+=deviationSquared
-            gyradiusSq[w,v]=totalDeviationSquared/(v+1)
+        idxmax=np.max( np.argwhere(polymers[w][:,0]) )  # find highest nonzero index
+        for v in range(1,idxmax+1):
+            meanPosition=np.mean(polymers[w][0:v],0)             
+            gyradiusSq[w,v]=1/(v)* np.trace((polymers[w][0:v]-meanPosition).dot((polymers[w][0:v]-meanPosition).T ))
+    
 
+    #Calc std        
     weightedGyradiusSq=np.zeros(c.nBeads)
     weightedGyradiusSqStd=np.zeros(c.nBeads)
 
