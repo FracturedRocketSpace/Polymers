@@ -5,12 +5,12 @@
 linkDistance    = 1;                                # Distance between two successive particles in the polymer chain
 
 
-nBeads          = 250;                              # Length of the polymer in beads
+nBeads          = 150;                              # Length of the polymer in beads
 T               = 1;                               # Temperature
 nAngles         = 6;                                # Number of possible angles
 nPolymers       = 1000;                              # Number of polymers
 aliveLim        = nPolymers*5;                      # Limits maximum number of alive polymers
-fixPop          = False;                             # Only if not PERM. Fixes population to nPolymers by restarting failed polymers.
+fixPop          = True;                             # Only if not PERM. Fixes population to nPolymers by restarting failed polymers.
 
 # PERM
 PERM            = False;                            # Enables or disables the pruning/enriching part
@@ -31,3 +31,4 @@ sigma           = 0.8;                              # Value proposed in the book
 
 # Plot things
 plotMaxPolymers = 10;                               # Maximum number of polymers plotted.
+histFraction    = 0.95;                             # Fraction of sorted total energies to be included in histogram. The few highest energies are much higher than the other ones and therefore ruin the histogram.

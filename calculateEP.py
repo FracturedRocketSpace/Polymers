@@ -44,3 +44,22 @@ def calculateEP2(r):
                 EP += 4*c.epsilon*((c.sigma**6*r6i)**2-c.sigma**6*r6i)  #Epsilon and sigma are not 1 in this problem. See book. Add up interaction energy with each present bead.
 
     return EP
+
+# Calculate EP for a whole polymer that is compatibile with PERM.    
+@jit
+def calculateEP3(r,idxmax):
+    EP = 0;
+
+    for a in range(idxmax):                                      # Calculate interaction energy of new bead with each of the present beads
+        for b in range(idxmax):
+            if(a>b):
+                dx= r[b,0] - r[a,0]
+                dy= r[b,1] - r[a,1]
+
+                r2=dx*dx + dy*dy
+                r2i=1/r2
+                r6i=r2i*r2i*r2i
+
+                EP += 4*c.epsilon*((c.sigma**6*r6i)**2-c.sigma**6*r6i)  #Epsilon and sigma are not 1 in this problem. See book. Add up interaction energy with each present bead.
+
+    return EP
