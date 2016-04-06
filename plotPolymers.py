@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import config as c
 
-def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, popSize, weightedGyradiusSq, weightedGyradiusSqStd, lp1, fittedWeightedEndtoendSq):
+def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, popSize, weightedGyradiusSq, weightedGyradiusSqStd, lp1, fittedWeightedEndtoendSq, fittedGyradius):
     # Set Font and do something else; Just when output is needed.
     #font = {'family' : 'normal',
     #        'weight' : 'normal',
@@ -59,6 +59,7 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
     plt.xlabel('Number of beads')
     plt.ylabel('Gyradius squared')
     plt.errorbar(x,weightedGyradiusSq,yerr=weightedGyradiusSqStd)
+    plt.plot(x,fittedGyradius,color = "r")
     plt.xscale('log')
     plt.yscale('log')
     plt.xlim([3,1000])

@@ -8,10 +8,6 @@ import math
 from numba import jit
 from scipy.optimize import curve_fit
 
-def fitFunction(N,a):
-    #the constant power is defined as 1.5 in the new version of the book
-    return a * (N-1) ** 1.5
-
 # Calculate weighted average end-to-end distance (squared) as a function of the number of beads
 #TODO: Make it faster or make it compatibale with hyperdrive
 #@jit( nopython=True )
@@ -41,11 +37,11 @@ def computeGyradius(polymers, polWeights):
     for w in range(len(polymers)):
         idxmax=np.max( np.argwhere(polymers[w][:,0]) )  # find highest nonzero index
         for v in range(1,idxmax+1):
-            meanPosition=np.mean(polymers[w][0:v],0)             
+            meanPosition=np.mean(polymers[w][0:v],0)
             gyradiusSq[w,v]=1/(v)* np.trace((polymers[w][0:v]-meanPosition).dot((polymers[w][0:v]-meanPosition).T ))
-    
 
-    #Calc std        
+
+    #Calc std
     weightedGyradiusSq=np.zeros(c.nBeads)
     weightedGyradiusSqStd=np.zeros(c.nBeads)
 
@@ -56,6 +52,25 @@ def computeGyradius(polymers, polWeights):
         weightedGyradiusSqStd[z]=( (np.average((gyradiusSq[:,z] - weightedGyradiusSq[z])**2, weights=t3))/(dataLength-1) )**(1/2)
 
     return weightedGyradiusSq, weightedGyradiusSqStd
+
+def fitEndToEnd(weightedEndtoendSq):
+    # The fit function; The constant power is defined as 1.5 in the new version of the book
+    def fitFunction(N,a):
+        return a * (N-1) ** 1.5
+    # Fit and return the fit
+    popt, pcov = curve_fit(fitFunction, np.arange(c.nBeads)+1 , weightedEndtoendSq);
+    print('Found coefficients for end-to-end: a =', popt[0],'; b fixed to 1.5')
+    return fitFunction(np.arange(c.nBeads)+1,popt[0]);
+
+def fitGyradius(weightedEndtoendSq):
+    # The fit function; The constant power is defined as 1.5 in the new version of the book
+    def fitFunction(N,a,b):
+        return a * (N-1) ** b
+    # Fit and return the fit
+    popt, pcov = curve_fit(fitFunction, np.arange(c.nBeads)+1 , weightedEndtoendSq);
+    print('Found coefficients for gyradius: a =', popt[0],'; b =', popt[1])
+    return fitFunction(np.arange(c.nBeads)+1,popt[0],popt[1]);
+
 
 # Computes population at each bead
 def computePopulation(polWeights):
@@ -78,23 +93,23 @@ def computePersistance(polymers, polWeights):
     for l in range(len(polymers)):
         idxmax=np.max( np.argwhere(polymers[l][:,0]) )  # find highest nonzero index
         if idxmax == (c.nBeads-1):  # Only use polymers with maximum length
-            lp1local=np.zeros([idxmax, 1 ])            
+            lp1local=np.zeros([idxmax, 1 ])
             for k in range(idxmax):
                 lref=polymers[l][k+1,:]-polymers[l][k,:]
                 lp1local[k] = np.dot(lref, polymers[l][idxmax,:]-polymers[l][k,:] ) / c.linkDistance
             lp1[n]=(np.mean(lp1local))
-            Weight[n]=polWeights[l][idxmax]    
+            Weight[n]=polWeights[l][idxmax]
             n+=1
-    
+
     if n<10:
         print("Warning: small sample size, bad statistics")
-        
+
     lp1Avg=np.average(lp1,weights=Weight);   # Take average over polymers
     print(lp1Avg)
     print(np.mean(lp1[0:n]))
     # Calculate error persistence length
     lpStd=( (np.average((lp1 - lp1Avg)**2, weights=Weight))/len(lp1) )**(1/2)
-    print(lpStd)    
+    print(lpStd)
 #    nBlocks=10;
 #    lBlock=len(polymers)/nBlocks;
 #    lpBlocks=np.zeros([nBlocks,1])
@@ -109,15 +124,15 @@ def computePersistance(polymers, polWeights):
 
 def postProcess(polymers, polWeights, endtoendDistances):
     weightedEndtoendSq, weightedEndtoendSqStd = computeEndToEnd(endtoendDistances, polWeights);
-    weightedGyradiusSq, weightedGyradiusSqStd = computeGyradius(polymers, polWeights);
     print("End to End done")
+    weightedGyradiusSq, weightedGyradiusSqStd = computeGyradius(polymers, polWeights);
     print("Gyradius done")
-    popt, pcov = curve_fit(fitFunction, np.arange(c.nBeads)+1 , weightedEndtoendSq);
-    fittedWeightedEndtoendSq = fitFunction(np.arange(c.nBeads)+1,popt[0]);
+    fittedWeightedEndtoendSq = fitEndToEnd(weightedEndtoendSq);
+    fittedGyradius = fitGyradius(weightedGyradiusSq);
     print("Fitting done")
     popSize = computePopulation(polWeights);
     print("Population calculated")
     lp1 = computePersistance(polymers, polWeights);
     print("Persistence length calculated")
 
-    return weightedEndtoendSq, weightedEndtoendSqStd,  weightedGyradiusSq, weightedGyradiusSqStd, popSize, lp1, fittedWeightedEndtoendSq
+    return weightedEndtoendSq, weightedEndtoendSqStd,  weightedGyradiusSq, weightedGyradiusSqStd, popSize, lp1, fittedWeightedEndtoendSq, fittedGyradius
