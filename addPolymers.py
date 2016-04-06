@@ -112,7 +112,7 @@ def addPolymers():
 
         else:
             # Find starting position
-            for L in range(2,c.nBeads):
+            for L in range(1,c.nBeads):
                 if(polWeights[k][L] > 0):
                     start = L + 1;
                     break;

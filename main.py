@@ -9,7 +9,7 @@ from addPolymers import addPolymers
 from plotPolymers import plotPolymers
 from minimizeEp import minimizeEp
 from postProcess import postProcess
-from calculateEP import calculateEP3
+from calculateEP import calculateEP2
 
 # Generate the polymers
 polymers, polWeights, endtoendDistances = addPolymers();
@@ -17,26 +17,39 @@ polymers, polWeights, endtoendDistances = addPolymers();
 #Check energy distribution
 totalEnergy=np.zeros(len(polymers))
 
+count = 0;
 for a in range(len(polymers)):
     idxmax=np.max( np.argwhere(polymers[a][:,0]) )            # find highest nonzero index
-    totalEnergy[a]=calculateEP3(polymers[a][0:idxmax],idxmax)
+    if(idxmax==c.nBeads-1):
+        totalEnergy[count]=calculateEP2(polymers[a])
+        count += 1;
 
 sortEnergy=np.sort(totalEnergy)
 lowerRange=sortEnergy[0]
-upperRange=sortEnergy[int(c.histFraction*len(polymers))] #Disregard highest energy polymers, because they have much higher energy than the rest and ruin the histogram
-q1=sortEnergy[int(0.25*c.histFraction*len(polymers))]    #Freedman-Diaconis method for determining optimal bin size
-q3=sortEnergy[int(0.75*c.histFraction*len(polymers))]
+upperRange=sortEnergy[int(c.histFraction*count)] #Disregard highest energy polymers, because they have much higher energy than the rest and ruin the histogram
+q1=sortEnergy[int(0.25*c.histFraction*count)]    #Freedman-Diaconis method for determining optimal bin size
+q3=sortEnergy[int(0.75*c.histFraction*count)]
 IQR=q3-q1
-h=2*IQR*(c.histFraction*len(polymers))**(-1/3)
+h=2*IQR*(c.histFraction*count)**(-1/3)
 b=(upperRange-lowerRange)/h
 
 plt.figure(4)
+# Below only when saving to file
+#font = {'family' : 'normal',
+#        'weight' : 'normal',
+#        'size'   : 25}
+#import matplotlib
+#matplotlib.rc('font', **font)
+#from matplotlib import rcParams
+#rcParams.update({'figure.autolayout': True})
+
 n, bins, patches=plt.hist(totalEnergy, int(b), range=(lowerRange,upperRange), facecolor='green')
 plt.ylim([0,1.5*np.max(n)])
 plt.xlabel('Total energy')
 plt.ylabel('Number of polymers')
 plt.title('Total energy distribution')
 plt.show()
+#plt.savefig('histogram.eps', bbox_inches='tight')
 
 #Post processing
 weightedEndtoendSq, weightedEndtoendSqStd,  weightedGyradiusSq, weightedGyradiusSqStd, popSize, lp1, fittedWeightedEndtoendSq, fittedGyradius = postProcess(polymers, polWeights, endtoendDistances);
