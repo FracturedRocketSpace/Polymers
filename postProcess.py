@@ -120,7 +120,57 @@ def computePersistance(polymers, polWeights):
 #    print ("Average persistence length method 1: ", lp1Avg, "Error: ", lpError)
 
     return lp1
+    
+def crossingExists(p1,p2,p3,p4):
+    #check if the lines are close to eachother    
+    if(min(p1[0],p2[0]) > max(p3[0],p4[0])):
+        return False;
+        
+    if(min(p3[0],p4[0]) > max(p1[0],p2[0])):
+        return False;
+        
+    if(min(p1[1],p2[1]) > max(p3[1],p4[1])):
+        return False;
+        
+    if(min(p3[1],p4[1]) > max(p1[1],p2[1])):
+        return False;
+    
+    #regular intersection calculation    
+    xDiff = [p1[0] - p2[0],p3[0] - p4[0]];
+    yDiff = [p1[1] - p2[1],p3[1] - p4[1]];
+    
+    det = np.linalg.det([xDiff,yDiff]);
+    
+    #check if lines are parallel
+    if(det == 0):
+        return False;
+        
+    #determine intersection position
+    d = (np.linalg.det([p1,p2]),np.linalg.det([p3,p4]));
+    x = np.linalg.det([d, xDiff]) / det;
+    y = np.linalg.det([d, yDiff]) / det;
+    
+    #check if the intersection is between the points
+    if(x > min(p1[0],p2[0],p3[0],p4[0]) and x < max(p1[0],p2[0],p3[0],p4[0])):
+        if(y > min(p1[1],p2[1],p3[1],p4[1]) and y < max(p1[1],p2[1],p3[1],p4[1])):
+            return True;
+                
+    return False;
 
+def computeAverageCrossings(polymers, polWeights):
+    
+    totalCrossings = 0;
+    
+    for p in range(len(polymers)):
+        #only count completed polymers
+        if(polWeights[p][-1] > 0):
+            for l1 in range(1,c.nBeads-1):
+                for l2 in range(l1-1):
+                    if(crossingExists(polymers[p][l1],polymers[p][l1+1],polymers[p][l2],polymers[p][l2+1])):
+                        totalCrossings += 1;
+        print("Polymer ", p, " checked for crossings.")
+    
+    return totalCrossings/len(polymers)
 
 def postProcess(polymers, polWeights, endtoendDistances):
     weightedEndtoendSq, weightedEndtoendSqStd = computeEndToEnd(endtoendDistances, polWeights);
@@ -134,5 +184,7 @@ def postProcess(polymers, polWeights, endtoendDistances):
     print("Population calculated")
     lp1 = computePersistance(polymers, polWeights);
     print("Persistence length calculated")
+    averageCrossings = computeAverageCrossings(polymers, polWeights);
+    print("Average number of crossings:", averageCrossings)
 
     return weightedEndtoendSq, weightedEndtoendSqStd,  weightedGyradiusSq, weightedGyradiusSqStd, popSize, lp1, fittedWeightedEndtoendSq, fittedGyradius
