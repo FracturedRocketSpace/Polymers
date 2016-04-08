@@ -30,21 +30,26 @@ def computeEndToEnd(endtoendDistances, polWeights):
  # Calculate gyradius and errors
 #Interpretation: The larger the gyradius, the larger the mean squared difference with the average bead position, so the more stretched the polymer is.
 #TODO: Make it faster or make it compatibale with hyperdrive
-#@jit( nopython=True )
-def computeGyradius(polymers, polWeights):
-    # Calc gyradius
-    gyradiusSq=np.zeros([len(polymers),c.nBeads])
-    for w in range(len(polymers)):
-        idxmax=np.max( np.argwhere(polymers[w][:,0]) )  # find highest nonzero index
-        for v in range(1,idxmax+1):
-            meanPosition=np.mean(polymers[w][0:v],0)
-            gyradiusSq[w,v]=1/(v)* np.trace((polymers[w][0:v]-meanPosition).dot((polymers[w][0:v]-meanPosition).T ))
+@jit( nopython=True )
+def computeGyradius(polymer, polWeight, gyradiusSq, deviation):
+    idxmax= np.sum( polymer[:,1] != 0 ) +1 # find highest nonzero index
+    for v in range(1,idxmax):
+        meanPosition=np.array([0, 0])        
+        meanPosition[0]= np.mean(polymer[0:v,0])
+        meanPosition[1]= np.mean(polymer[0:v,1])
+        
+        deviation[:,0]= polymer[:,0] - meanPosition[0]
+        deviation[:,1]= polymer[:,1] - meanPosition[1]
+        
+        gyradiusSq[v]=1/(v+1)  * np.sum(deviation[1:v]*deviation[1:v])
+        
+    return gyradiusSq.T
 
-
-    #Calc std
+def computeGyradiusStd(gyradiusSq, polWeights):
+#    #Calc Weighted gyradius and standard deviation
     weightedGyradiusSq=np.zeros(c.nBeads)
     weightedGyradiusSqStd=np.zeros(c.nBeads)
-
+    
     for z in range(c.nBeads):
         t3 = np.squeeze(np.asarray(polWeights)[:,z])
         dataLength = len( np.flatnonzero(t3!=0) )
@@ -175,15 +180,26 @@ def computeAverageCrossings(polymers, polWeights):
 def postProcess(polymers, polWeights, endtoendDistances):
     weightedEndtoendSq, weightedEndtoendSqStd = computeEndToEnd(endtoendDistances, polWeights);
     print("End to End done")
-    weightedGyradiusSq, weightedGyradiusSqStd = computeGyradius(polymers, polWeights);
+    
+    gyradiusSq = np.zeros([len(polymers),c.nBeads])
+    for polNum in range(len(polymers)):
+        gyradiusSq[polNum, :] = computeGyradius(polymers[polNum], polWeights[polNum], np.zeros(c.nBeads) , np.zeros([c.nBeads,2]));
+        if (polNum % 500 ==0):
+            print('Gyradius polymer', polNum, 'done')
+    print(gyradiusSq[:,249])
+    weightedGyradiusSq, weightedGyradiusSqStd = computeGyradiusStd(gyradiusSq, polWeights)
     print("Gyradius done")
+    
     fittedWeightedEndtoendSq = fitEndToEnd(weightedEndtoendSq);
     fittedGyradius = fitGyradius(weightedGyradiusSq);
     print("Fitting done")
+    
     popSize = computePopulation(polWeights);
     print("Population calculated")
+    
     lp1 = computePersistance(polymers, polWeights);
     print("Persistence length calculated")
+    
     averageCrossings = computeAverageCrossings(polymers, polWeights);
     print("Average number of crossings:", averageCrossings)
 
