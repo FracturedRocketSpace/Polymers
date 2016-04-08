@@ -57,7 +57,7 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
     plt.plot(x,fittedGyradius,color = "r")
     plt.xscale('log')
     plt.yscale('log')
-    plt.xlim([3,1000])
+    plt.xlim([3,250])
 
     if(c.minEp):
         plt.subplot(236)
