@@ -8,15 +8,6 @@ import numpy as np
 import config as c
 
 def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, popSize, weightedGyradiusSq, weightedGyradiusSqStd, lp1, fittedWeightedEndtoendSq, fittedGyradius):
-    # Set Font and do something else; Just when output is needed.
-    #font = {'family' : 'normal',
-    #        'weight' : 'normal',
-    #        'size'   : 25}
-    #import matplotlib
-    #matplotlib.rc('font', **font)
-    #from matplotlib import rcParams
-    #rcParams.update({'figure.autolayout': True})
-
     # The plots
     plt.figure(1)
 
@@ -82,5 +73,23 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
     plt.ylabel('Number of polymers')
     plt.locator_params(axis='x',nbins=4)
     plt.plot(popSize, linewidth=2)
-    #plt.savefig('popSize.eps', bbox_inches='tight',  dpi=100)
 
+    # Save the plots to file
+    if(c.savePlots):
+        # Set font and layout.
+        font = {'family' : 'normal',
+               'weight' : 'normal',
+                'size'   : 25}
+        import matplotlib
+        matplotlib.rc('font', **font)
+        from matplotlib import rcParams
+        rcParams.update({'figure.autolayout': True})
+        # Save to file
+        plt.figure(1)
+        plt.savefig('random.eps', bbox_inches='tight',  dpi=200)
+        plt.figure(2)
+        plt.savefig('persistence.eps', bbox_inches='tight',  dpi=200)
+        plt.figure(3)
+        plt.savefig('popSize.eps', bbox_inches='tight',  dpi=200)
+        plt.figure(4)
+        plt.savefig('histogram.eps', bbox_inches='tight',  dpi=200)

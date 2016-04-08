@@ -96,7 +96,7 @@ def computePersistance(polymers, polWeights):
             lp1local=np.zeros([idxmax, 1 ])
             for k in range(idxmax):
                 lref=polymers[l][k+1,:]-polymers[l][k,:]
-                lp1local[k] = np.dot(lref, polymers[l][idxmax,:]-polymers[l][k,:] ) / c.linkDistance
+                lp1local[k] = np.dot(lref, polymers[l][idxmax,:]-polymers[l][k,:] );
             lp1[n]=(np.mean(lp1local))
             Weight[n]=polWeights[l][idxmax]
             n+=1

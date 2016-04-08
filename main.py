@@ -34,22 +34,12 @@ h=2*IQR*(c.histFraction*count)**(-1/3)
 b=(upperRange-lowerRange)/h
 
 plt.figure(4)
-# Below only when saving to file
-#font = {'family' : 'normal',
-#        'weight' : 'normal',
-#        'size'   : 25}
-#import matplotlib
-#matplotlib.rc('font', **font)
-#from matplotlib import rcParams
-#rcParams.update({'figure.autolayout': True})
-
 n, bins, patches=plt.hist(totalEnergy, int(b), range=(lowerRange,upperRange), facecolor='green')
 plt.ylim([0,1.5*np.max(n)])
 plt.xlabel('Total energy')
 plt.ylabel('Number of polymers')
 plt.title('Total energy distribution')
 plt.show()
-#plt.savefig('histogram.eps', bbox_inches='tight')
 
 #Post processing
 weightedEndtoendSq, weightedEndtoendSqStd,  weightedGyradiusSq, weightedGyradiusSqStd, popSize, lp1, fittedWeightedEndtoendSq, fittedGyradius = postProcess(polymers, polWeights, endtoendDistances);

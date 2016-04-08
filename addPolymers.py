@@ -8,6 +8,7 @@ import numpy as np
 import math as m
 from calculateEP import calculateEP
 
+# The pruning and enriching for PERM
 def pruneANDenrich(polPositions,polWeights,endtoendDistance,alive,L,k, avWeight, avWeight3):
     lowLim = c.alphaLowLim * avWeight / avWeight3;
     upLim = c.alphaUpLim * avWeight / avWeight3;
@@ -18,20 +19,17 @@ def pruneANDenrich(polPositions,polWeights,endtoendDistance,alive,L,k, avWeight,
         else:
             alive[k] = False;
             polWeights[k][L] = 0;
-
     elif(polWeights[k][L] > upLim and alive.count(True) < c.aliveLim):
         polWeights[k][L] /= 2;
-
+        # Start new polymer at current bead
         polPositions.append(np.copy(polPositions[k]));
-        #TODO: In principle entry L should be zero as well for the new branch.
         polWeights.append(np.zeros([c.nBeads,1]));
         polWeights[len(polWeights)-1][L] = polWeights[k][L];
         endtoendDistance.append(np.copy(endtoendDistance[k]));
-
         alive.append(True);
 
+# Calculates the discrete set of angles and their weights
 def calculateAngles(r, L):
-    # Calculate angle weights
     angleOffset = rand.uniform(0, 2*np.pi/c.nAngles)   	 #Generate random angle offset
     angles = np.zeros(c.nAngles)                          #Initialize angle vector
     w = np.zeros(c.nAngles)                               #Initialize weight vector
@@ -43,6 +41,7 @@ def calculateAngles(r, L):
         W += w[j]
     return angles, w, W
 
+# The roulette wheel algorithm for choosing an angle
 def chooseAngle(w, W, angles):
     if(W==0):
         print('Problem with angle! Chance for each angle is 0.') # High chance that polymer is crossing
@@ -52,15 +51,15 @@ def chooseAngle(w, W, angles):
         number = rand.random();
         for i in range(c.nAngles):
             # Upper lim
-            upper = np.sum(p[0:i]) + p[i]
+            upper = np.sum(p[0:i+1]);
 
             if( number <= upper ):
                 return angles[i];
-        # Could happen if w's nan
+        # Just a failsafe
         print('Problem with angle! W is ', W);
         return angles[rand.randrange(0, c.nAngles)];
 
-
+# Add a new bead to the polymer
 def addBead(r, polWeight, endtoendDistance, L):
     # Calculate angles and weights
     angles, w, W = calculateAngles(r, L);
@@ -68,17 +67,20 @@ def addBead(r, polWeight, endtoendDistance, L):
     # Choose Angle
     angle = chooseAngle(w, W, angles);
 
-    # Add new bead
-    r[L,0] = r[L-1,0] + c.linkDistance*m.cos(angle)         # Position of the new bead for angle
-    r[L,1] = r[L-1,1] + c.linkDistance*m.sin(angle)
+    # Add new bead to polymer
+    r[L,0] = r[L-1,0] + m.cos(angle)
+    r[L,1] = r[L-1,1] + m.sin(angle)
 
+    # Calculate end-to-end distance
     endtoendDistance[L]=(r[L,0]**2+r[L,1]**2)
 
-    if (c.PERM==True):                                      # I think the correction factor is not necessary for normal Rosenbluth algorithm
+    # Update polWeight. Only include correction factor if doing PERM
+    if (c.PERM==True):
         polWeight[L] = polWeight[L-1]* W/(0.75 * c.nAngles);
     else:
-        polWeight[L] = polWeight[L-1]* W    
-        
+        polWeight[L] = polWeight[L-1]* W
+
+# Generate all polymers
 def addPolymers():
     #initialize polymer list
     polPositions = [];
@@ -87,29 +89,28 @@ def addPolymers():
     alive = [];
     avWeight = np.zeros([c.nBeads,2])
 
-
-    #generate polymers and save the values in lists
+    # Generate polymers and save the values in lists
     k = 0;
     numCreated = 0;
     restarted = False;
     while numCreated < int(c.nPolymers) or restarted:
         restarted = False;
-        # Start new; Otherwise continue one already created.
+        # Start new polymer
         if(k == len(polPositions)):
+            # Initialize storage arrays
             polPositions.append(np.zeros([c.nBeads,2]));
             polWeights.append(np.zeros([c.nBeads,1]));
             endtoendDistances.append(np.zeros([c.nBeads,1]));
             alive.append(True);
-
+            # Set first values
             polWeights[k][0] = 1;
             polWeights[k][1] = 1;
-            polPositions[k][1,1] = c.linkDistance;
-            endtoendDistances[k][1]=c.linkDistance**2
+            polPositions[k][1,1] = 1;
+            endtoendDistances[k][1]= 1;
 
             numCreated += 1;
-
             start = 2;
-
+        # Continue an already added polymer
         else:
             # Find starting position
             for L in range(1,c.nBeads):
@@ -123,19 +124,15 @@ def addPolymers():
             if(alive[k]):
                 addBead(polPositions[k],polWeights[k],endtoendDistances[k],L);
 
-                #enrich and prune
+                # Enrich and prune
                 if(c.PERM):
                     # Update avWeight
                     avWeight[L,0] += polWeights[k][L];
                     avWeight[L,1] += 1;
 
-
-                    avWeight3 = avWeight[2,0];
-                    avWeightL = avWeight[L,0];
-
-                    pruneANDenrich(polPositions, polWeights, endtoendDistances, alive, L, k, avWeightL, avWeight3);
+                    pruneANDenrich(polPositions, polWeights, endtoendDistances, alive, L, k, avWeight[L,0], avWeight[2,0]);
+                # Depending if we want to fix the population we restart the polymer or just stop building of polWeight has become zero
                 elif(c.fixPop and polWeights[k][L] == 0):
-                    # Restart polymer
                     restarted = True;
                     break;
                 elif(polWeights[k][L] == 0):

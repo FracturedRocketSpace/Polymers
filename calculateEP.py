@@ -9,8 +9,8 @@ from numba import jit
 # Calculates EP between new bead and others
 @jit
 def calculateEP (r, angle, L):
-    r[L, 0] = r[L-1, 0] + c.linkDistance*m.cos(angle)     # Position of the new bead for certain angle
-    r[L, 1] = r[L-1, 1] + c.linkDistance*m.sin(angle)
+    r[L, 0] = r[L-1, 0] + m.cos(angle)     # Position of the new bead for certain angle
+    r[L, 1] = r[L-1, 1] + m.sin(angle)
 
     EP = 0;
 

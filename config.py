@@ -2,9 +2,6 @@
 # Config file
 #==============================================================================
 
-linkDistance    = 1;                                # Distance between two successive particles in the polymer chain
-
-
 nBeads          = 150;                              # Length of the polymer in beads
 T               = 1;                               # Temperature
 nAngles         = 6;                                # Number of possible angles
@@ -32,3 +29,4 @@ sigma           = 0.8;                              # Value proposed in the book
 # Plot things
 plotMaxPolymers = 10;                               # Maximum number of polymers plotted.
 histFraction    = 0.95;                             # Fraction of sorted total energies to be included in histogram. The few highest energies are much higher than the other ones and therefore ruin the histogram.
+savePlots       = False;                            # Output plots to file
