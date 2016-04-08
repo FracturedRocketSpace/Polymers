@@ -186,7 +186,6 @@ def postProcess(polymers, polWeights, endtoendDistances):
         gyradiusSq[polNum, :] = computeGyradius(polymers[polNum], polWeights[polNum], np.zeros(c.nBeads) , np.zeros([c.nBeads,2]));
         if (polNum % 500 ==0):
             print('Gyradius polymer', polNum, 'done')
-    print(gyradiusSq[:,249])
     weightedGyradiusSq, weightedGyradiusSqStd = computeGyradiusStd(gyradiusSq, polWeights)
     print("Gyradius done")
     

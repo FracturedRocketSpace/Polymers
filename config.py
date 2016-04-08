@@ -10,7 +10,7 @@ aliveLim        = nPolymers*5;                      # Limits maximum number of a
 fixPop          = True;                             # Only if not PERM. Fixes population to nPolymers by restarting failed polymers.
 
 # PERM
-PERM            = False;                            # Enables or disables the pruning/enriching part
+PERM            = True;                            # Enables or disables the pruning/enriching part
 alphaUpLim      = 2.2;                                # Constant for enrichining
 alphaLowLim     = 1.2;                              # Constant for pruning
 
