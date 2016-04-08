@@ -23,7 +23,7 @@ def computeEndToEnd(endtoendDistances, polWeights):
         dataLength = len( np.flatnonzero(t2!=0) );
 
         weightedEndtoendSq[z]=np.average(t1, weights=t2)
-        weightedEndtoendSqStd[z]= (np.average((t1 - weightedEndtoendSq[z])**2, weights=t2))**(1/2)
+        weightedEndtoendSqStd[z]=( (np.average((t1 - weightedEndtoendSq[z])**2, weights=t2)) / (dataLength))**(1/2)
 
     return weightedEndtoendSq, weightedEndtoendSqStd
 
@@ -54,7 +54,7 @@ def computeGyradiusStd(gyradiusSq, polWeights):
         t3 = np.squeeze(np.asarray(polWeights)[:,z])
         dataLength = len( np.flatnonzero(t3!=0) )
         weightedGyradiusSq[z]=np.average(gyradiusSq[:,z], weights=t3)
-        weightedGyradiusSqStd[z]= (np.average((gyradiusSq[:,z] - weightedGyradiusSq[z])**2, weights=t3))**(1/2)
+        weightedGyradiusSqStd[z]=( (np.average((gyradiusSq[:,z] - weightedGyradiusSq[z])**2, weights=t3)) / (dataLength))**(1/2)
 
     return weightedGyradiusSq, weightedGyradiusSqStd
 
@@ -111,7 +111,7 @@ def computePersistance(polymers, polWeights):
     
     # Calculate average persistence length and standard deviation
     lp1Avg=np.average(lp1,weights=Weight);   # Take average over polymers
-    lpStd=( (np.average((lp1 - lp1Avg)**2, weights=Weight)) )**(1/2)
+    lpStd=( (np.average((lp1 - lp1Avg)**2, weights=Weight)) / n )**(1/2)
     
     print("Persistence length: ", lp1Avg, ". Standard deviation: ", lpStd)
 
