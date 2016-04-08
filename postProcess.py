@@ -111,7 +111,7 @@ def computePersistance(polymers, polWeights):
     
     # Calculate average persistence length and standard deviation
     lp1Avg=np.average(lp1,weights=Weight);   # Take average over polymers
-    lpStd=( (np.average((lp1 - lp1Avg)**2, weights=Weight))/n )**(1/2)
+    lpStd=( (np.average((lp1 - lp1Avg)**2, weights=Weight)) )**(1/2)
     
     print("Persistence length: ", lp1Avg, ". Standard deviation: ", lpStd)
 
@@ -190,7 +190,7 @@ def postProcess(polymers, polWeights, endtoendDistances):
     lp1 = computePersistance(polymers, polWeights);
     print("Persistence length calculated")
     
-    averageCrossings = computeAverageCrossings(polymers, polWeights);
-    print("Average number of crossings:", averageCrossings)
+#    averageCrossings = computeAverageCrossings(polymers, polWeights);
+#    print("Average number of crossings:", averageCrossings)
 
     return weightedEndtoendSq, weightedEndtoendSqStd,  weightedGyradiusSq, weightedGyradiusSqStd, popSize, lp1, fittedWeightedEndtoendSq, fittedGyradius
