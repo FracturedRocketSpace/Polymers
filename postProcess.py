@@ -23,7 +23,7 @@ def computeEndToEnd(endtoendDistances, polWeights):
         dataLength = len( np.flatnonzero(t2!=0) );
 
         weightedEndtoendSq[z]=np.average(t1, weights=t2)
-        weightedEndtoendSqStd[z]=( (np.average((t1 - weightedEndtoendSq[z])**2, weights=t2))/(dataLength-1) )**(1/2)
+        weightedEndtoendSqStd[z]= (np.average((t1 - weightedEndtoendSq[z])**2, weights=t2))**(1/2)
 
     return weightedEndtoendSq, weightedEndtoendSqStd
 
@@ -54,7 +54,7 @@ def computeGyradiusStd(gyradiusSq, polWeights):
         t3 = np.squeeze(np.asarray(polWeights)[:,z])
         dataLength = len( np.flatnonzero(t3!=0) )
         weightedGyradiusSq[z]=np.average(gyradiusSq[:,z], weights=t3)
-        weightedGyradiusSqStd[z]=( (np.average((gyradiusSq[:,z] - weightedGyradiusSq[z])**2, weights=t3))/(dataLength-1) )**(1/2)
+        weightedGyradiusSqStd[z]= (np.average((gyradiusSq[:,z] - weightedGyradiusSq[z])**2, weights=t3))**(1/2)
 
     return weightedGyradiusSq, weightedGyradiusSqStd
 
@@ -97,7 +97,7 @@ def computePersistance(polymers, polWeights):
     n=0
     for l in range(len(polymers)):
         idxmax=np.max( np.argwhere(polymers[l][:,0]) )  # find highest nonzero index
-        if idxmax == (c.nBeads-1):  # Only use polymers with maximum length
+        if idxmax == (c.nBeads-1):                      # Only use polymers with maximum length
             lp1local=np.zeros([idxmax, 1 ])
             for k in range(idxmax):
                 lref=polymers[l][k+1,:]-polymers[l][k,:]
@@ -108,21 +108,12 @@ def computePersistance(polymers, polWeights):
 
     if n<10:
         print("Warning: small sample size, bad statistics")
-
+    
+    # Calculate average persistence length and standard deviation
     lp1Avg=np.average(lp1,weights=Weight);   # Take average over polymers
-    print(lp1Avg)
-    print(np.mean(lp1[0:n]))
-    # Calculate error persistence length
-    lpStd=( (np.average((lp1 - lp1Avg)**2, weights=Weight))/len(lp1) )**(1/2)
-    print(lpStd)
-#    nBlocks=10;
-#    lBlock=len(polymers)/nBlocks;
-#    lpBlocks=np.zeros([nBlocks,1])
-#    for j in range(nBlocks):
-#        lpBlocks[j]=np.dot( totalWeight[math.floor(j*lBlock) : math.floor( (j+1)*lBlock)].T , lp1[math.floor(j*lBlock):math.floor( (j+1)*lBlock)] ) / np.sum(totalWeight[math.floor(j*lBlock):math.floor( (j+1)*lBlock)])
-#    lpError=math.sqrt( (np.mean(lpBlocks*lpBlocks)- np.mean(lpBlocks)**2) / nBlocks );
-#
-#    print ("Average persistence length method 1: ", lp1Avg, "Error: ", lpError)
+    lpStd=( (np.average((lp1 - lp1Avg)**2, weights=Weight))/n )**(1/2)
+    
+    print("Persistence length: ", lp1Avg, ". Standard deviation: ", lpStd)
 
     return lp1
     
