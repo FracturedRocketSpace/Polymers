@@ -11,7 +11,7 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
     # The plots
     plt.figure(1)
 
-    plt.subplot(231)
+    plt.subplot(121)
     plt.title('Polymer positions')
     plt.xlabel('x')
     plt.ylabel('y')
@@ -19,7 +19,7 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
         r = polymers[i]
         plt.plot( r[:,0], r[:,1] )
 
-    plt.subplot(232)
+    plt.subplot(122)
     plt.title('End-to-end distance squared vs the number of beads')
     plt.xlabel('Number of beads')
     plt.xlim(0,c.nBeads)
@@ -29,37 +29,32 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
         y=endtoendDistances[i][:,0]
         plt.plot ( x, y)
 
-    plt.subplot(233)
-    plt.title('Population size')
-    plt.xlabel('Number of beads')
-    plt.xlim(0,c.nBeads)
-    plt.ylabel('Number of polymers')
-    plt.plot(popSize)
-
-    plt.subplot(234)
+    plt.figure(5)
     plt.title('Weighted average end-to-end distance squared vs number of beads')
     plt.xlabel('Number of beads')
     plt.xlim(0,c.nBeads)
     plt.ylabel('End-to-end distance squared')
-    #plt.plot(x,weightedEndtoendSq)
-    plt.errorbar(x,weightedEndtoendSq,yerr=weightedEndtoendSqStd)
-    plt.plot(x,fittedWeightedEndtoendSq,color = "r")
+    plt.errorbar(x,weightedEndtoendSq,yerr=weightedEndtoendSqStd, label='Data')
+    plt.plot(x,fittedWeightedEndtoendSq,color = "r", label='Fit')
     plt.xscale('log')
     plt.yscale('log')
-    plt.xlim([3,1000])
+    plt.xlim([3,c.nBeads])
+    plt.legend(loc='best')
 
-    plt.subplot(235)
+    plt.figure(6)
     plt.title('Weighted average gyradius squared vs number of beads')
     plt.xlabel('Number of beads')
     plt.xlim(0,c.nBeads)
     plt.ylabel('Gyradius squared')
-    plt.errorbar(x,weightedGyradiusSq,yerr=weightedGyradiusSqStd)
-    plt.plot(x,fittedGyradius,color = "r")
+    plt.errorbar(x,weightedGyradiusSq,yerr=weightedGyradiusSqStd, label='Data')
+    plt.plot(x,fittedGyradius,color = "r", label='Fit')
     plt.xscale('log')
     plt.yscale('log')
-    plt.xlim([3,1000])
+    plt.xlim([3,c.nBeads])
+    plt.legend(loc='best')
 
     if(c.minEp):
+        plt.figure(7)
         plt.subplot(236)
         plt.title('Minimal potential energy at each genetic algorithm iteration')
         plt.xlabel('Iteration')
@@ -74,9 +69,14 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
     # Population size plot
     plt.figure(3)
     plt.xlabel('Number of beads')
-    plt.ylabel('Number of polymers')
     plt.locator_params(axis='x',nbins=4)
-    plt.plot(popSize, linewidth=2)
+    if(c.PERM):
+        plt.ylabel('Population size')
+        plt.plot(popSize, linewidth=2)
+    else:
+        plt.ylabel('Fraction of polymers alive')
+        plt.plot(popSize/c.nPolymers, linewidth=2)
+        plt.ylim(0,1)
 
     # Save the plots to file
     if(c.savePlots):
@@ -97,3 +97,9 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
         plt.savefig('popSize.eps', bbox_inches='tight',  dpi=200)
         plt.figure(4)
         plt.savefig('histogram.eps', bbox_inches='tight',  dpi=200)
+        plt.figure(5)
+        plt.savefig('e2e.eps', bbox_inches='tight',  dpi=200)
+        plt.figure(6)
+        plt.savefig('Gyradius.eps', bbox_inches='tight',  dpi=200)
+        plt.figure(7)
+        plt.savefig('EPmin.eps', bbox_inches='tight',  dpi=200)
