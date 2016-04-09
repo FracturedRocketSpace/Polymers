@@ -5,7 +5,7 @@
 import config as c
 import numpy as np
 import random as rand
-from calculateEP import calculateEP2
+from calculateEP import calculateTotalEP
 import math as m
 
 def pePolymers(polymers,Ep):
@@ -87,7 +87,7 @@ def mutatePolymer(polymers):
         polymers[pol] = rNew;
 
 
-# Note: Should keep best copy always in polymers.
+# The genetic algorithm
 def minimizeEp(polymers):
     minEp = np.zeros(c.minIter)
 
@@ -95,7 +95,7 @@ def minimizeEp(polymers):
         # Calculate EP for all
         Ep = []; # Reset
         for j in range(len(polymers)):
-            Ep.append( calculateEP2(polymers[j]) )
+            Ep.append( calculateTotalEP(polymers[j]) )
 
         # Set minimum EP at start of this Iter
         minEp[i]=min(Ep)
@@ -116,7 +116,7 @@ def minimizeEp(polymers):
 
         # Reinsert best polymer
         polymers.append(rBest);
-        
+
         # Print
         print('Minimization step', i+1, 'completed')
 

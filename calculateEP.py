@@ -28,7 +28,7 @@ def calculateEP (r, angle, L):
 
 # Calculates EP for whole polymer
 @jit
-def calculateEP2(r):
+def calculateTotalEP(r):
     EP = 0;
 
     for a in range(c.nBeads):                                      # Calculate interaction energy of new bead with each of the present beads

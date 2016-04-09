@@ -3,15 +3,15 @@
 #==============================================================================
 
 nBeads          = 250;                              # Length of the polymer in beads
-T               = 1;                               # Temperature
+T               = 1;                                # Temperature
 nAngles         = 6;                                # Number of possible angles
-nPolymers       = 2500;                              # Number of polymers
+nPolymers       = 2500;                             # Number of polymers
 aliveLim        = nPolymers*5;                      # Limits maximum number of alive polymers
 fixPop          = True;                             # Only if not PERM. Fixes population to nPolymers by restarting failed polymers.
 
 # PERM
-PERM            = True;                            # Enables or disables the pruning/enriching part
-alphaUpLim      = 2.2;                                # Constant for enrichining
+PERM            = True;                             # Enables or disables the pruning/enriching part
+alphaUpLim      = 2.2;                              # Constant for enriching
 alphaLowLim     = 1.2;                              # Constant for pruning
 
 # Energy minimization algorithm
@@ -29,4 +29,4 @@ sigma           = 0.8;                              # Value proposed in the book
 # Plot things
 plotMaxPolymers = 10;                               # Maximum number of polymers plotted.
 histFraction    = 0.95;                             # Fraction of sorted total energies to be included in histogram. The few highest energies are much higher than the other ones and therefore ruin the histogram.
-savePlots       = False;                            # Output plots to file
+savePlots       = False;                            # Output plot to file

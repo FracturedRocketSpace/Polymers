@@ -44,7 +44,7 @@ def calculateAngles(r, L):
 # The roulette wheel algorithm for choosing an angle
 def chooseAngle(w, W, angles):
     if(W==0):
-        print('Problem with angle! Chance for each angle is 0.') # High chance that polymer is crossing
+        print('All probabilities are zero!') # High chance that polymer is crossing
         return angles[rand.randrange(0, c.nAngles)];
     else:
         p=w/W;
@@ -82,9 +82,9 @@ def addBead(r, polWeight, endtoendDistance, L):
 
 # Generate all polymers
 def addPolymers():
-    #initialize polymer list
-    #Lists of arrays are used so dynamically adding polymers is possible when enriching
-    #In principle only lists could be used to save memory space, but arrays are more convenient to work with
+    # Initialize polymer list
+    # Lists of arrays are used so dynamically adding polymers is possible when enriching
+    # In principle only lists could be used to save memory space, but arrays are more convenient to work with
     polPositions = [];
     polWeights = [];
     endtoendDistances = [];

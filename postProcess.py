@@ -6,14 +6,14 @@ import config as c
 import numpy as np
 from numba import jit
 from scipy.optimize import curve_fit
-from calculateEP import calculateEP2
+from calculateEP import calculateTotalEP
 
 # Calculate weighted average end-to-end distance (squared) as a function of the number of beads
 def computeEndToEnd(endtoendDistances, polWeights):
     # Initiate variables
     weightedEndtoendSq=np.zeros(c.nBeads)
     weightedEndtoendSqStd=np.zeros(c.nBeads)
-    
+
     # Loop over all possible polymer lengths
     for z in range(c.nBeads):
         # Get data
@@ -32,7 +32,7 @@ def computeEndToEnd(endtoendDistances, polWeights):
 def computeGyradius(polymer, polWeight, gyradiusSq, deviation):
     # find highest nonzero index
     idxmax= np.sum( polymer[:,1] != 0 ) +1
-    
+
     # Determine gyradius for all polymer lengths
     for v in range(1,idxmax):
         # Get average coordinate in polymer
@@ -47,13 +47,13 @@ def computeGyradius(polymer, polWeight, gyradiusSq, deviation):
 
     return gyradiusSq.T
 
-def computeGyradiusStd(gyradiusSq, polWeights):  
+def computeGyradiusStd(gyradiusSq, polWeights):
     # Calc Weighted gyradius and standard deviation
 
     # Initiate variables
     weightedGyradiusSq=np.zeros(c.nBeads)
     weightedGyradiusSqStd=np.zeros(c.nBeads)
-    
+
     # Loop over all possible polymer lengths
     for z in range(c.nBeads):
         # Get weight for bead number z in all polymers
@@ -70,19 +70,19 @@ def fitEndToEnd(weightedEndtoendSq):
     # The fit function; The constant power is defined as 1.5 in the new version of the book
     def fitFunction(N,a):
         return a * (N-1) ** 1.5
-        
+
     # Fit and return the fit
     popt, pcov = curve_fit(fitFunction, np.arange(c.nBeads)+1 , weightedEndtoendSq);
     print('Found coefficients for end-to-end: a =', popt[0],'; b fixed to 1.5')
     return fitFunction(np.arange(c.nBeads)+1,popt[0]);
 
-def fitGyradius(weightedEndtoendSq):
-    # The fit function; The constant power is defined as 1.5 in the new version of the book
+def fitGyradius(weightedGyradiusSq):
+    # The fit function;
     def fitFunction(N,a,b):
         return a * (N-1) ** b
-    
+
     # Fit and return the fit
-    popt, pcov = curve_fit(fitFunction, np.arange(c.nBeads)+1 , weightedEndtoendSq);
+    popt, pcov = curve_fit(fitFunction, np.arange(c.nBeads)+1 , weightedGyradiusSq);
     print('Found coefficients for gyradius: a =', popt[0],'; b =', popt[1])
     return fitFunction(np.arange(c.nBeads)+1,popt[0],popt[1]);
 
@@ -91,7 +91,7 @@ def fitGyradius(weightedEndtoendSq):
 def computePopulation(polWeights):
     # Initiate variables
     popSize = np.zeros(c.nBeads);
-    
+
     # Sum nonzero weights to get population size
     for i in range(c.nBeads):
         temp = np.asarray(polWeights)[:,i];
@@ -105,7 +105,7 @@ def computePersistance(polymers, polWeights):
     lp1=np.zeros([len(polymers),1])
     Weight=np.zeros([len(polymers),1])
     n=0
-    
+
     # Loop over all polymers
     for l in range(len(polymers)):
         # find highest nonzero index
@@ -118,13 +118,13 @@ def computePersistance(polymers, polWeights):
             for k in range(idxmax):
                 lref=polymers[l][k+1,:]-polymers[l][k,:]
                 lp1local[k] = np.dot(lref, polymers[l][idxmax,:]-polymers[l][k,:] );
-            
+
             # Calculate average of local persistence length and save weight
             lp1[n]=(np.mean(lp1local))
             Weight[n]=polWeights[l][idxmax]
-            
+
             n+=1
-            
+
     # Warn if small sample size
     if n<10:
         print("Warning: small sample size, bad statistics")
@@ -132,16 +132,16 @@ def computePersistance(polymers, polWeights):
     # Calculate average persistence length and standard deviation
     lp1Avg=np.average(lp1,weights=Weight);
     lpStd=( (np.average((lp1 - lp1Avg)**2, weights=Weight)) / n )**(1/2)
-    
+
     print("Persistence length: ", lp1Avg, ". Standard deviation: ", lpStd)
 
     return lp1
 
-#numpy determinant does not work with numba for nonpython = True
+# Numpy determinant does not work with numba for nonpython = True
 @jit( nopython=True )
 def det(a, b):
     return a[0] * b[1] - a[1] * b[0];
-    
+
 #determine if a crossing exists between two links
 @jit( nopython=True )
 def crossingExists(p1,p2,p3,p4):
@@ -185,7 +185,7 @@ def computeAverageCrossings(polymers, polWeights):
     # Initiate variables
     totalCrossings = 0;
     aliveCount = 0
-    
+
     # Detect and note crossings for all polymers
     for p in range(len(polymers)):
         #only count completed polymers
@@ -211,45 +211,45 @@ def computeSortedEnergy(polymers):
         idxmax=np.max( np.argwhere(polymers[a][:,0]) )
         # Only check full length polymers
         if(idxmax==c.nBeads-1):
-            totalEnergy.append(calculateEP2(polymers[a]))
+            totalEnergy.append(calculateTotalEP(polymers[a]))
 
     # Sort energy and retunr
     return np.sort(totalEnergy)
 
+# Runs all individual functions
 def postProcess(polymers, polWeights, endtoendDistances):
-    # Runs all individual functions  
-    
-    # Sorted energy
+
+    # Calculates and sort the energy for use in the histogram
     sortedEnergy = computeSortedEnergy(polymers);
-    
+
     # Ent to end distance
     weightedEndtoendSq, weightedEndtoendSqStd = computeEndToEnd(endtoendDistances, polWeights);
     print("End to End done")
-    
+
     # Gyradius
+    # The implementation is done this way because numba does not like lists.
     gyradiusSq = np.zeros([len(polymers),c.nBeads])
     # Loop over all polymers
     for polNum in range(len(polymers)):
         gyradiusSq[polNum, :] = computeGyradius(polymers[polNum], polWeights[polNum], np.zeros(c.nBeads) , np.zeros([c.nBeads,2]));
-        # Print progress        
+        # Print progress
         if (polNum % 500 ==0):
             print('Gyradius polymer', polNum, 'done')
     weightedGyradiusSq, weightedGyradiusSqStd = computeGyradiusStd(gyradiusSq, polWeights)
     print("Gyradius done")
-    
+
     # Fit end to end and gyradius
     fittedWeightedEndtoendSq = fitEndToEnd(weightedEndtoendSq);
     fittedGyradius = fitGyradius(weightedGyradiusSq);
-    print("Fitting done")
-    
+
     # Population size
     popSize = computePopulation(polWeights);
     print("Population calculated")
-    
+
     # Persistence length
     lp1 = computePersistance(polymers, polWeights);
     print("Persistence length calculated")
-    
+
     # Crossing detector
     averageCrossings = computeAverageCrossings(polymers, polWeights);
     print("Average number of crossings:", averageCrossings)
