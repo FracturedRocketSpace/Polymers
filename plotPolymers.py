@@ -21,7 +21,7 @@ def plotPolymerPositions(polymers,polWeights):
             plt.plot( r[:,0], r[:,1] )
             polPlotted += 1;
         i += 1;
-        
+
 def plotPersistenceLength(lp1):
 
     # Persistence length
@@ -29,7 +29,7 @@ def plotPersistenceLength(lp1):
     plt.plot(lp1)
     plt.xlabel('Polymer number')
     plt.ylabel('Average local persistence length')
-    
+
 def plotPopulationSize(popSize):
 
     # Population size plot
@@ -44,7 +44,7 @@ def plotPopulationSize(popSize):
         plt.ylabel('Fraction alive')
         plt.plot(popSize/c.nPolymers, linewidth=2)
         plt.ylim(0,1)
-        
+
 def plotEnergyHistogram(sortedEnergy):
 
     # Energy distribution histogram
@@ -56,16 +56,16 @@ def plotEnergyHistogram(sortedEnergy):
     IQR=q3-q1
     h=2*IQR*(c.histFraction*len(sortedEnergy))**(-1/3)
     b=(upperRange-lowerRange)/h
-    
+
     plt.figure(4)
     n, bins, patches=plt.hist(sortedEnergy, int(b), range=(lowerRange,upperRange), facecolor='green')
     plt.ylim([0,1.5*np.max(n)])
     plt.xlabel('Potential')
     plt.ylabel('Number of polymers')
     plt.title('Total energy distribution')
-    
+
 def plotEndtoendSq(weightedEndtoendSq,weightedEndtoendSqStd,fittedWeightedEndtoendSq,popSize):
-    
+
     x = np.linspace(1,c.nBeads, c.nBeads);
 
     # Plot the end-to-end distance squared
@@ -80,7 +80,7 @@ def plotEndtoendSq(weightedEndtoendSq,weightedEndtoendSqStd,fittedWeightedEndtoe
     plt.yscale('log')
     plt.xlim([3,c.nBeads])
     plt.legend(loc='best')
-    
+
 def plotGyradiusSq(weightedGyradiusSq,weightedGyradiusSqStd,fittedGyradius,popSize):
 
     x = np.linspace(1,c.nBeads, c.nBeads);
@@ -97,12 +97,11 @@ def plotGyradiusSq(weightedGyradiusSq,weightedGyradiusSqStd,fittedGyradius,popSi
     plt.yscale('log')
     plt.xlim([3,c.nBeads])
     plt.legend(loc='best')
-    
+
 def plotMinEp(minEp):
 
     # Plot the minimal potential energy at every genetic algorithm iteration
     plt.figure(7)
-    plt.subplot(236)
     plt.title('Minimal potential energy at each genetic algorithm iteration')
     plt.xlabel('Iteration')
     plt.ylabel('Potential')

@@ -61,8 +61,8 @@ def mutatePolymer(polymers):
         # Build mutated polymer
         rNew = np.zeros((c.nBeads,2))
         rNew[0:bead,:] = r1;
-        rNew[bead,0] = rNew[bead-1,0] + c.linkDistance*m.cos(angle);
-        rNew[bead,1] = rNew[bead-1,1] + c.linkDistance*m.sin(angle);
+        rNew[bead,0] = rNew[bead-1,0] + m.cos(angle);
+        rNew[bead,1] = rNew[bead-1,1] + m.sin(angle);
         rNew[bead+1 : :,:] = r2 + rNew[bead];
         # Insert
         polymers[pol] = rNew;

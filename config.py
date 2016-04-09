@@ -2,7 +2,6 @@
 # Config file
 #==============================================================================
 
-linkDistance    = 1;
 nBeads          = 250;                              # Length of the polymer in beads
 T               = 1;                                # Temperature
 nAngles         = 6;                                # Number of possible angles
