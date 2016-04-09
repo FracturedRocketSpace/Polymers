@@ -27,11 +27,11 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
     plt.title('Total energy distribution')
     
     plt.figure(1)
-    plt.title('Polymer positions')
     plt.xlabel('x')
     plt.ylabel('y')
     polPlotted = 0;
-    i=0;
+    #plot polymers starting from the center for a better representation when using PERM
+    i=int(len(polymers)/2);
     while(polPlotted < min(len(polymers),c.plotMaxPolymers)):
         if(polWeights[i][-1] > 0):        
             r = polymers[i];
@@ -64,7 +64,7 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
     plt.figure(6)
     plt.xlabel('Number of beads')
     plt.xlim(0,c.nBeads)
-    plt.ylabel('Gyradius squared')
+    plt.ylabel('Ensemble average $R_g^2$')
     plt.errorbar(x,weightedGyradiusSq,yerr=weightedGyradiusSqStd, label='Data')
     plt.plot(x,fittedGyradius,color = "r", label='Fit')
     plt.plot(popSize, color = "g", label='Population')

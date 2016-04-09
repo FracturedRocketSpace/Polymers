@@ -10,8 +10,6 @@ from scipy.optimize import curve_fit
 from calculateEP import calculateEP2
 
 # Calculate weighted average end-to-end distance (squared) as a function of the number of beads
-#TODO: Make it faster or make it compatibale with hyperdrive
-#@jit( nopython=True )
 def computeEndToEnd(endtoendDistances, polWeights):
     weightedEndtoendSq=np.zeros(c.nBeads)
     weightedEndtoendSqStd=np.zeros(c.nBeads)
@@ -29,8 +27,6 @@ def computeEndToEnd(endtoendDistances, polWeights):
     return weightedEndtoendSq, weightedEndtoendSqStd
 
  # Calculate gyradius and errors
-#Interpretation: The larger the gyradius, the larger the mean squared difference with the average bead position, so the more stretched the polymer is.
-#TODO: Make it faster or make it compatibale with hyperdrive
 @jit( nopython=False )
 def computeGyradius(polymer, polWeight, gyradiusSq, deviation):
     idxmax= np.sum( polymer[:,1] != 0 ) +1 # find highest nonzero index
@@ -88,9 +84,6 @@ def computePopulation(polWeights):
     return popSize
 
 # Calculate pesistance length
-#TODO: Cleanup
-#TODO: Make it faster or make it compatibale with hyperdrive
-#@jit( nopython=True )
 def computePersistance(polymers, polWeights):
     lp1=np.zeros([len(polymers),1])
     Weight=np.zeros([len(polymers),1])
@@ -122,6 +115,7 @@ def computePersistance(polymers, polWeights):
 def det(a, b):
     return a[0] * b[1] - a[1] * b[0];
     
+#determine if a crossing exists between two links
 @jit( nopython=True )
 def crossingExists(p1,p2,p3,p4):
     #check if the lines are close to eachother    

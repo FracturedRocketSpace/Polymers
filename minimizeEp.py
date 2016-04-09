@@ -15,7 +15,6 @@ def pePolymers(polymers,Ep):
     extra=0;
     if(len(polymers)>c.nPolymers):
         extra = len(polymers) - c.nPolymers;
-    #
     for j  in range(len(polymers)):
         if(j < c.enrichFrac ):
             polymers2.append( polymers[order[j]] )
