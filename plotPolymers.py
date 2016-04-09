@@ -9,7 +9,7 @@ import config as c
 
 def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, popSize, weightedGyradiusSq, weightedGyradiusSqStd, lp1, fittedWeightedEndtoendSq, fittedGyradius, totalEnergy, totalEnergyCount, polWeights):
     # The plots
-    
+
     sortEnergy=np.sort(totalEnergy)
     lowerRange=sortEnergy[0]
     upperRange=sortEnergy[int(c.histFraction*totalEnergyCount)] #Disregard highest energy polymers, because they have much higher energy than the rest and ruin the histogram
@@ -18,11 +18,11 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
     IQR=q3-q1
     h=2*IQR*(c.histFraction*totalEnergyCount)**(-1/3)
     b=(upperRange-lowerRange)/h
-    
+
     plt.figure(4)
     n, bins, patches=plt.hist(totalEnergy, int(b), range=(lowerRange,upperRange), facecolor='green')
     plt.ylim([0,1.5*np.max(n)])
-    plt.xlabel('Total energy')
+    plt.xlabel('Potential')
     plt.ylabel('Number of polymers')
     plt.title('Total energy distribution')
     
@@ -50,24 +50,24 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
         plt.plot ( x, y)
 
     plt.figure(5)
-    plt.title('Weighted average end-to-end distance squared vs number of beads')
     plt.xlabel('Number of beads')
     plt.xlim(0,c.nBeads)
     plt.ylabel('End-to-end distance squared')
     plt.errorbar(x,weightedEndtoendSq,yerr=weightedEndtoendSqStd, label='Data')
     plt.plot(x,fittedWeightedEndtoendSq,color = "r", label='Fit')
+    plt.plot(popSize, color = "g", label='Population')
     plt.xscale('log')
     plt.yscale('log')
     plt.xlim([3,c.nBeads])
     plt.legend(loc='best')
 
     plt.figure(6)
-    plt.title('Weighted average gyradius squared vs number of beads')
     plt.xlabel('Number of beads')
     plt.xlim(0,c.nBeads)
     plt.ylabel('Gyradius squared')
     plt.errorbar(x,weightedGyradiusSq,yerr=weightedGyradiusSqStd, label='Data')
     plt.plot(x,fittedGyradius,color = "r", label='Fit')
+    plt.plot(popSize, color = "g", label='Population')
     plt.xscale('log')
     plt.yscale('log')
     plt.xlim([3,c.nBeads])
@@ -90,11 +90,12 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
     plt.figure(3)
     plt.xlabel('Number of beads')
     plt.locator_params(axis='x',nbins=4)
+    plt.xlim([0,c.nBeads])
     if(c.PERM):
-        plt.ylabel('Population size')
+        plt.ylabel('Population')
         plt.plot(popSize, linewidth=2)
     else:
-        plt.ylabel('Fraction of polymers alive')
+        plt.ylabel('Fraction alive')
         plt.plot(popSize/c.nPolymers, linewidth=2)
         plt.ylim(0,1)
 
