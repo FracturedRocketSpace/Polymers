@@ -163,10 +163,12 @@ def crossingExists(p1,p2,p3,p4):
 def computeAverageCrossings(polymers, polWeights):
     
     totalCrossings = 0;
+    aliveCount = 0
     
     for p in range(len(polymers)):
         #only count completed polymers
         if(polWeights[p][-1] > 0):
+            aliveCount += 1;
             for l1 in range(1,c.nBeads-1):
                 for l2 in range(l1-1):
                     if(crossingExists(polymers[p][l1],polymers[p][l1+1],polymers[p][l2],polymers[p][l2+1])):
@@ -174,7 +176,7 @@ def computeAverageCrossings(polymers, polWeights):
         if (p % 500 == 0):
             print("Polymer ", p, " checked for crossings.");
     
-    return totalCrossings/len(polymers)
+    return totalCrossings/aliveCount;
     
 def computeTotalEnergy(polymers):
     #Check energy distribution

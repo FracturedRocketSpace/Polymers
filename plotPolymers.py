@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import config as c
 
-def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, popSize, weightedGyradiusSq, weightedGyradiusSqStd, lp1, fittedWeightedEndtoendSq, fittedGyradius, totalEnergy, totalEnergyCount):
+def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, popSize, weightedGyradiusSq, weightedGyradiusSqStd, lp1, fittedWeightedEndtoendSq, fittedGyradius, totalEnergy, totalEnergyCount, polWeights):
     # The plots
     
     sortEnergy=np.sort(totalEnergy)
@@ -27,16 +27,19 @@ def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoe
     plt.title('Total energy distribution')
     
     plt.figure(1)
-
-    plt.subplot(121)
     plt.title('Polymer positions')
     plt.xlabel('x')
     plt.ylabel('y')
-    for i in range(min(len(polymers),c.plotMaxPolymers)):
-        r = polymers[i]
-        plt.plot( r[:,0], r[:,1] )
+    polPlotted = 0;
+    i=0;
+    while(polPlotted < min(len(polymers),c.plotMaxPolymers)):
+        if(polWeights[i][-1] > 0):        
+            r = polymers[i];
+            plt.plot( r[:,0], r[:,1] )
+            polPlotted += 1;
+        i += 1;
 
-    plt.subplot(122)
+    plt.figure(8)
     plt.title('End-to-end distance squared vs the number of beads')
     plt.xlabel('Number of beads')
     plt.xlim(0,c.nBeads)
