@@ -31,22 +31,22 @@ def computeEndToEnd(endtoendDistances, polWeights):
 def computeGyradius(polymer, polWeight, gyradiusSq, deviation):
     idxmax= np.sum( polymer[:,1] != 0 ) +1 # find highest nonzero index
     for v in range(1,idxmax):
-        meanPosition=np.array([0, 0])        
+        meanPosition=np.array([0, 0])
         meanPosition[0]= np.mean(polymer[0:v,0])
         meanPosition[1]= np.mean(polymer[0:v,1])
-        
+
         deviation[:,0]= polymer[:,0] - meanPosition[0]
         deviation[:,1]= polymer[:,1] - meanPosition[1]
-        
+
         gyradiusSq[v]=1/(v+1)  * np.sum(deviation[1:v]*deviation[1:v])
-        
+
     return gyradiusSq.T
 
 def computeGyradiusStd(gyradiusSq, polWeights):
 #    #Calc Weighted gyradius and standard deviation
     weightedGyradiusSq=np.zeros(c.nBeads)
     weightedGyradiusSqStd=np.zeros(c.nBeads)
-    
+
     for z in range(c.nBeads):
         t3 = np.squeeze(np.asarray(polWeights)[:,z])
         dataLength = len( np.flatnonzero(t3!=0) )
@@ -101,16 +101,16 @@ def computePersistance(polymers, polWeights):
 
     if n<10:
         print("Warning: small sample size, bad statistics")
-    
+
     # Calculate average persistence length and standard deviation
     lp1Avg=np.average(lp1,weights=Weight);   # Take average over polymers
     lpStd=( (np.average((lp1 - lp1Avg)**2, weights=Weight)) / n )**(1/2)
-    
+
     print("Persistence length: ", lp1Avg, ". Standard deviation: ", lpStd)
 
     return lp1
 
-#numpy determinant does not work with numba for nonpython = True  
+#numpy determinant does not work with numba for nonpython = True
 @jit( nopython=True )
 def det(a, b):
     return a[0] * b[1] - a[1] * b[0];
@@ -118,47 +118,47 @@ def det(a, b):
 #determine if a crossing exists between two links
 @jit( nopython=True )
 def crossingExists(p1,p2,p3,p4):
-    #check if the lines are close to eachother    
+    #check if the lines are close to eachother
     if(min(p1[0],p2[0]) > max(p3[0],p4[0])):
         return False;
-        
+
     if(min(p3[0],p4[0]) > max(p1[0],p2[0])):
         return False;
-        
+
     if(min(p1[1],p2[1]) > max(p3[1],p4[1])):
         return False;
-        
+
     if(min(p3[1],p4[1]) > max(p1[1],p2[1])):
         return False;
-    
-    #regular intersection calculation    
+
+    #regular intersection calculation
     xDiff = [p1[0] - p2[0],p3[0] - p4[0]];
     yDiff = [p1[1] - p2[1],p3[1] - p4[1]];
-    
+
     determinant = det(xDiff,yDiff);
-    
+
     #check if lines are parallel
     if(determinant == 0):
         return False;
-        
+
     #determine intersection position
     d = [det(p1,p2),det(p3,p4)];
     x = det(d, xDiff) / determinant;
     y = det(d, yDiff) / determinant;
-    
+
     #check if the intersection is between the points
     if(x > min(p1[0],p2[0],p3[0],p4[0]) and x < max(p1[0],p2[0],p3[0],p4[0])):
         if(y > min(p1[1],p2[1],p3[1],p4[1]) and y < max(p1[1],p2[1],p3[1],p4[1])):
             return True;
-                
+
     return False;
 
 @jit( nopython=False )
 def computeAverageCrossings(polymers, polWeights):
-    
+
     totalCrossings = 0;
     aliveCount = 0
-    
+
     for p in range(len(polymers)):
         #only count completed polymers
         if(polWeights[p][-1] > 0):
@@ -169,28 +169,28 @@ def computeAverageCrossings(polymers, polWeights):
                         totalCrossings += 1;
         if (p % 500 == 0):
             print("Polymer ", p, " checked for crossings.");
-    
+
     return totalCrossings/aliveCount;
-    
-def computeTotalEnergy(polymers):
+
+def computeSortedEnergy(polymers):
     #Check energy distribution
-    totalEnergy=np.zeros(len(polymers))
-    
-    totalEnergyCount = 0;
+    totalEnergy = [];
+
     for a in range(len(polymers)):
         idxmax=np.max( np.argwhere(polymers[a][:,0]) )            # find highest nonzero index
+        # Only check full length polymers
         if(idxmax==c.nBeads-1):
-            totalEnergy[totalEnergyCount]=calculateEP2(polymers[a])
-            totalEnergyCount += 1;
-            
-    return totalEnergy, totalEnergyCount
+            totalEnergy.append(calculateEP2(polymers[a]))
+
+    # Sort energy and retunr
+    return np.sort(totalEnergy)
 
 def postProcess(polymers, polWeights, endtoendDistances):
-    totalEnergy, totalEnergyCount = computeTotalEnergy(polymers);    
-    
+    sortedEnergy = computeSortedEnergy(polymers);
+
     weightedEndtoendSq, weightedEndtoendSqStd = computeEndToEnd(endtoendDistances, polWeights);
     print("End to End done")
-    
+
     gyradiusSq = np.zeros([len(polymers),c.nBeads])
     for polNum in range(len(polymers)):
         gyradiusSq[polNum, :] = computeGyradius(polymers[polNum], polWeights[polNum], np.zeros(c.nBeads) , np.zeros([c.nBeads,2]));
@@ -198,18 +198,18 @@ def postProcess(polymers, polWeights, endtoendDistances):
             print('Gyradius polymer', polNum, 'done')
     weightedGyradiusSq, weightedGyradiusSqStd = computeGyradiusStd(gyradiusSq, polWeights)
     print("Gyradius done")
-    
+
     fittedWeightedEndtoendSq = fitEndToEnd(weightedEndtoendSq);
     fittedGyradius = fitGyradius(weightedGyradiusSq);
     print("Fitting done")
-    
+
     popSize = computePopulation(polWeights);
     print("Population calculated")
-    
+
     lp1 = computePersistance(polymers, polWeights);
     print("Persistence length calculated")
-    
+
     averageCrossings = computeAverageCrossings(polymers, polWeights);
     print("Average number of crossings:", averageCrossings)
 
-    return weightedEndtoendSq, weightedEndtoendSqStd,  weightedGyradiusSq, weightedGyradiusSqStd, popSize, lp1, fittedWeightedEndtoendSq, fittedGyradius, totalEnergy, totalEnergyCount
+    return weightedEndtoendSq, weightedEndtoendSqStd,  weightedGyradiusSq, weightedGyradiusSqStd, popSize, lp1, fittedWeightedEndtoendSq, fittedGyradius, sortedEnergy
