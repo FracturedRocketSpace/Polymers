@@ -7,6 +7,7 @@ import numpy as np
 import math
 from numba import jit
 from scipy.optimize import curve_fit
+from calculateEP import calculateEP2
 
 # Calculate weighted average end-to-end distance (squared) as a function of the number of beads
 #TODO: Make it faster or make it compatibale with hyperdrive
@@ -30,7 +31,7 @@ def computeEndToEnd(endtoendDistances, polWeights):
  # Calculate gyradius and errors
 #Interpretation: The larger the gyradius, the larger the mean squared difference with the average bead position, so the more stretched the polymer is.
 #TODO: Make it faster or make it compatibale with hyperdrive
-@jit( nopython=True )
+@jit( nopython=False )
 def computeGyradius(polymer, polWeight, gyradiusSq, deviation):
     idxmax= np.sum( polymer[:,1] != 0 ) +1 # find highest nonzero index
     for v in range(1,idxmax):
@@ -86,7 +87,6 @@ def computePopulation(polWeights):
 
     return popSize
 
-
 # Calculate pesistance length
 #TODO: Cleanup
 #TODO: Make it faster or make it compatibale with hyperdrive
@@ -116,7 +116,13 @@ def computePersistance(polymers, polWeights):
     print("Persistence length: ", lp1Avg, ". Standard deviation: ", lpStd)
 
     return lp1
+
+#numpy determinant does not work with numba for nonpython = True  
+@jit( nopython=True )
+def det(a, b):
+    return a[0] * b[1] - a[1] * b[0];
     
+@jit( nopython=True )
 def crossingExists(p1,p2,p3,p4):
     #check if the lines are close to eachother    
     if(min(p1[0],p2[0]) > max(p3[0],p4[0])):
@@ -135,16 +141,16 @@ def crossingExists(p1,p2,p3,p4):
     xDiff = [p1[0] - p2[0],p3[0] - p4[0]];
     yDiff = [p1[1] - p2[1],p3[1] - p4[1]];
     
-    det = np.linalg.det([xDiff,yDiff]);
+    determinant = det(xDiff,yDiff);
     
     #check if lines are parallel
-    if(det == 0):
+    if(determinant == 0):
         return False;
         
     #determine intersection position
-    d = (np.linalg.det([p1,p2]),np.linalg.det([p3,p4]));
-    x = np.linalg.det([d, xDiff]) / det;
-    y = np.linalg.det([d, yDiff]) / det;
+    d = [det(p1,p2),det(p3,p4)];
+    x = det(d, xDiff) / determinant;
+    y = det(d, yDiff) / determinant;
     
     #check if the intersection is between the points
     if(x > min(p1[0],p2[0],p3[0],p4[0]) and x < max(p1[0],p2[0],p3[0],p4[0])):
@@ -153,6 +159,7 @@ def crossingExists(p1,p2,p3,p4):
                 
     return False;
 
+@jit( nopython=False )
 def computeAverageCrossings(polymers, polWeights):
     
     totalCrossings = 0;
@@ -164,11 +171,27 @@ def computeAverageCrossings(polymers, polWeights):
                 for l2 in range(l1-1):
                     if(crossingExists(polymers[p][l1],polymers[p][l1+1],polymers[p][l2],polymers[p][l2+1])):
                         totalCrossings += 1;
-        print("Polymer ", p, " checked for crossings.")
+        if (p % 500 == 0):
+            print("Polymer ", p, " checked for crossings.");
     
     return totalCrossings/len(polymers)
+    
+def computeTotalEnergy(polymers):
+    #Check energy distribution
+    totalEnergy=np.zeros(len(polymers))
+    
+    totalEnergyCount = 0;
+    for a in range(len(polymers)):
+        idxmax=np.max( np.argwhere(polymers[a][:,0]) )            # find highest nonzero index
+        if(idxmax==c.nBeads-1):
+            totalEnergy[totalEnergyCount]=calculateEP2(polymers[a])
+            totalEnergyCount += 1;
+            
+    return totalEnergy, totalEnergyCount
 
 def postProcess(polymers, polWeights, endtoendDistances):
+    totalEnergy, totalEnergyCount = computeTotalEnergy(polymers);    
+    
     weightedEndtoendSq, weightedEndtoendSqStd = computeEndToEnd(endtoendDistances, polWeights);
     print("End to End done")
     
@@ -190,7 +213,7 @@ def postProcess(polymers, polWeights, endtoendDistances):
     lp1 = computePersistance(polymers, polWeights);
     print("Persistence length calculated")
     
-#    averageCrossings = computeAverageCrossings(polymers, polWeights);
-#    print("Average number of crossings:", averageCrossings)
+    averageCrossings = computeAverageCrossings(polymers, polWeights);
+    print("Average number of crossings:", averageCrossings)
 
-    return weightedEndtoendSq, weightedEndtoendSqStd,  weightedGyradiusSq, weightedGyradiusSqStd, popSize, lp1, fittedWeightedEndtoendSq, fittedGyradius
+    return weightedEndtoendSq, weightedEndtoendSqStd,  weightedGyradiusSq, weightedGyradiusSqStd, popSize, lp1, fittedWeightedEndtoendSq, fittedGyradius, totalEnergy, totalEnergyCount

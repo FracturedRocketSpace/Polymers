@@ -7,8 +7,25 @@ import matplotlib.pyplot as plt
 import numpy as np
 import config as c
 
-def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, popSize, weightedGyradiusSq, weightedGyradiusSqStd, lp1, fittedWeightedEndtoendSq, fittedGyradius):
+def plotPolymers(polymers, endtoendDistances, weightedEndtoendSq, weightedEndtoendSqStd, minEp, popSize, weightedGyradiusSq, weightedGyradiusSqStd, lp1, fittedWeightedEndtoendSq, fittedGyradius, totalEnergy, totalEnergyCount):
     # The plots
+    
+    sortEnergy=np.sort(totalEnergy)
+    lowerRange=sortEnergy[0]
+    upperRange=sortEnergy[int(c.histFraction*totalEnergyCount)] #Disregard highest energy polymers, because they have much higher energy than the rest and ruin the histogram
+    q1=sortEnergy[int(0.25*c.histFraction*totalEnergyCount)]    #Freedman-Diaconis method for determining optimal bin size
+    q3=sortEnergy[int(0.75*c.histFraction*totalEnergyCount)]
+    IQR=q3-q1
+    h=2*IQR*(c.histFraction*totalEnergyCount)**(-1/3)
+    b=(upperRange-lowerRange)/h
+    
+    plt.figure(4)
+    n, bins, patches=plt.hist(totalEnergy, int(b), range=(lowerRange,upperRange), facecolor='green')
+    plt.ylim([0,1.5*np.max(n)])
+    plt.xlabel('Total energy')
+    plt.ylabel('Number of polymers')
+    plt.title('Total energy distribution')
+    
     plt.figure(1)
 
     plt.subplot(121)
