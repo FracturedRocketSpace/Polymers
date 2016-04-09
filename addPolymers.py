@@ -83,7 +83,8 @@ def addBead(r, polWeight, endtoendDistance, L):
 # Generate all polymers
 def addPolymers():
     #initialize polymer list
-    #Lists are used so dynamically adding and removing entries is possible when pruning and enriching
+    #Lists of arrays are used so dynamically adding polymers is possible when enriching
+    #In principle only lists could be used to save memory space, but arrays are more convenient to work with
     polPositions = [];
     polWeights = [];
     endtoendDistances = [];
